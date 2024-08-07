@@ -28,7 +28,7 @@ export default function HomePage() {
                         </div>
                     </div>
                 </section>
-                {/* <section className="relative flex flex-col md:flex-row items-center justify-center md:space-x-4 px-4 py-8">
+                <section className="relative flex flex-col md:flex-row items-center justify-center md:space-x-4 px-4 py-8">
                     <div className="food relative w-full overflow-hidden ">
                         <Image src="/images/home1.png" alt="Food" width={600} height={600} className="object-cover rounded-lg" />
                     </div>
@@ -41,7 +41,7 @@ export default function HomePage() {
                     <div className="absolute food-home2 w-full h-full flex items-end justify-center pb-10">
                         <Image src="/images/food-home2.png" alt="Food" width={200} height={200} className="object-cover rounded-lg" />
                     </div>
-                </section> */}
+                </section>
             </main>
             <section className="bg-orange-300 min-h-screen flex flex-row justify-center">
                 <h2>Trusted by 10000+ companies around the world</h2>

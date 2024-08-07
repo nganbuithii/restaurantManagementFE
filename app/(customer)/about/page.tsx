@@ -1,5 +1,6 @@
 // app/about/page.tsx
 
+import Footer from '@/components/footer';
 import Header from '@/components/header';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
@@ -25,6 +26,7 @@ const AboutPage = () => {
           <Button className="bg-white text-orange-500 py-2 px-6 rounded-full shadow-lg hover:bg-gray-200 transition duration-300">Read More</Button>
         </div>
       </section>
+      <Footer/>
     </>
   );
 }
