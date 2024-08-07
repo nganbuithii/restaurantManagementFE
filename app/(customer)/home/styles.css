@@ -1,0 +1,14 @@
+.food {
+    width: 500px;
+    position: relative;
+}
+.food-home{
+    position: absolute;
+    left:-260px;
+    bottom:70px;
+}
+.food-home2{
+    position: absolute;
+    right:-260px;
+    bottom:80px;
+}
