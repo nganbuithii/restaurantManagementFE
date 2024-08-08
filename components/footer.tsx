@@ -50,7 +50,7 @@ export default function Footer() {
             </div>
         </div>
         <div className="border-t border-gray-700 mt-8 pt-4 text-center text-gray-400">
-            <p>&copy; 2024 Design by NganBuiThi</p>
+            <p>&copy; 2024 Design by NganBuiThi - information technology industry project</p>
         </div>
     </footer>
     )};
