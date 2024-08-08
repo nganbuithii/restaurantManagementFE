@@ -3,7 +3,7 @@ import { FaBell } from "react-icons/fa";
 
 export default function HeaderAdmin() {
     return (
-        <main className="ml-64 flex-1 p-6 bg-gray-100 flex items-center justify-between">
+        <main className="ml-64 flex-1 p-6 bg-orange-300 flex items-center justify-between">
             <div className="flex items-center space-x-4">
                 <h1 className="text-3xl font-bold">Admin Dashboard</h1>
                 <div className="text-2xl">
