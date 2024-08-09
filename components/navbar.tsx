@@ -41,11 +41,11 @@ export default function Navbar() {
                         </NavigationMenuItem>
                         <NavigationMenuItem className="p-0">
                             <NavigationMenuLink
-                                href="/admin"
-                                className={`flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${pathname === '/admin' ? 'bg-gray-700 text-white' : 'hover:bg-orange-300'}`}
+                                href="/admin/menu-list"
+                                className={`flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${pathname === '/admin/menu-list' ? 'bg-gray-700 text-white' : 'hover:bg-orange-300'}`}
                             >
                                 <FaUsers />
-                                Quản lý menu
+                                Quản lý thực đơn
                             </NavigationMenuLink>
                         </NavigationMenuItem>
 
