@@ -61,8 +61,8 @@ export default function Navbar() {
 
                         <NavigationMenuItem className="p-0">
                             <NavigationMenuLink
-                                href="/admin/customers"
-                                className={`flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${pathname === '/admin/customers' ? 'bg-gray-700 text-white' : 'hover:bg-orange-300'}`}
+                                href="/admin/customer-info"
+                                className={`flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${pathname === '/admin/customer-info' ? 'bg-gray-700 text-white' : 'hover:bg-orange-300'}`}
                             >
                                 <FaUserGroup />
                                 Thông tin khách hàng
@@ -91,8 +91,8 @@ export default function Navbar() {
 
                         <NavigationMenuItem className="p-0">
                             <NavigationMenuLink
-                                href="/admin/stock"
-                                className={`flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${pathname === '/admin/stock' ? 'bg-gray-700 text-white' : 'hover:bg-orange-300'}`}
+                                href="/admin/storehouse"
+                                className={`flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${pathname === '/admin/storehouse' ? 'bg-gray-700 text-white' : 'hover:bg-orange-300'}`}
                             >
                                 <FaStore />
                                 Quản lý kho
