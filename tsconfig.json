@@ -21,6 +21,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "components/Breadcrumbs.tsx", "components/Modal.jsx", "app/admin/storehouse/page.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "components/Breadcrumbs.tsx", "components/Modal.jsx", "app/admin/storehouse/page.jsx", "components/header-admin.jsx"],
   "exclude": ["node_modules"]
 }
