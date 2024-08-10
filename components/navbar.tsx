@@ -101,8 +101,8 @@ export default function Navbar() {
 
                         <NavigationMenuItem className="p-0">
                             <NavigationMenuLink
-                                href="/admin/stock-reports"
-                                className={`flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${pathname === '/admin/stock-reports' ? 'bg-gray-700 text-white' : 'hover:bg-orange-300'}`}
+                                href="/admin/statistic-storehouse"
+                                className={`flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${pathname === '/admin/statistic-storehouse' ? 'bg-gray-700 text-white' : 'hover:bg-orange-300'}`}
                             >
                                 <TbBrandGoogleAnalytics />
                                 Thống kê xuất/nhập kho
