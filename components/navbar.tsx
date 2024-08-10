@@ -121,8 +121,8 @@ export default function Navbar() {
 
                         <NavigationMenuItem className="p-0">
                             <NavigationMenuLink
-                                href="/admin/feedback"
-                                className={`flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${pathname === '/admin/feedback' ? 'bg-gray-700 text-white' : 'hover:bg-orange-300'}`}
+                                href="/admin/feedbacks"
+                                className={`flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${pathname === '/admin/feedbacks' ? 'bg-gray-700 text-white' : 'hover:bg-orange-300'}`}
                             >
                                 <FaReplyd />
                                 Phản hồi & Đánh giá
