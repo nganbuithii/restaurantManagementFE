@@ -131,8 +131,8 @@ export default function Navbar() {
 
                         <NavigationMenuItem className="p-0">
                             <NavigationMenuLink
-                                href="/admin/reports"
-                                className={`flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${pathname === '/admin/reports' ? 'bg-gray-700 text-white' : 'hover:bg-orange-300'}`}
+                                href="/admin/statistic"
+                                className={`flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${pathname === '/admin/statistic' ? 'bg-gray-700 text-white' : 'hover:bg-orange-300'}`}
                             >
                                 <TbReportAnalytics />
                                 Thống kê báo cáo
