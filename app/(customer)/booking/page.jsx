@@ -163,8 +163,8 @@ export default function BookingTable() {
                     <div className="space-y-4">
                         <h2 className="text-xl font-semibold text-gray-700">Step 4: Would you like to pre-order?</h2>
                         <div className="flex justify-center space-x-4">
-                            <Button onClick={() => handlePreOrderDecision(true)}>Yes, I'd like to pre-order</Button>
-                            <Button variant="outline" onClick={() => handlePreOrderDecision(false)}>No, I'll order at the restaurant</Button>
+                            <Button onClick={() => handlePreOrderDecision(true)}>Yes, I would like to pre-order</Button>
+                            <Button variant="outline" onClick={() => handlePreOrderDecision(false)}>No, I will order at the restaurant</Button>
                         </div>
                     </div>
                 );
