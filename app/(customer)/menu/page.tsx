@@ -104,7 +104,7 @@ export default function HomePage() {
                     <div className="flex-1 max-w-lg flex flex-col justify-center lg:w-1/2 px-24 mt-7 mb-7">
                         <h1 className="text-4xl font-bold text-gray-800 mb-6 text-center lg:text-left">ABOUT OKEN</h1>
                         <p className="text-lg text-gray-700 leading-relaxed">
-                            Whether you're in the mood for a hearty meal or a light bite, our menu is designed to provide a memorable dining experience. Our dedicated team is committed to delivering exceptional service and ensuring that every visit to Oken is a delightful one. Explore our menu and discover your new favorite dish today!
+                            Whether you are in the mood for a hearty meal or a light bite, our menu is designed to provide a memorable dining experience. Our dedicated team is committed to delivering exceptional service and ensuring that every visit to Oken is a delightful one. Explore our menu and discover your new favorite dish today!
                         </p>
                     </div>
                     <div className="flex-1 lg:w-1/2 relative ">

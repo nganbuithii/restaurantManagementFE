@@ -7,6 +7,7 @@ import Navbar from "@/components/navbar";
 import { CiCircleCheck, CiLock } from "react-icons/ci";
 import { FaLock, FaSearch, FaUnlock, FaUserEdit } from "react-icons/fa";
 import { IoMdInformationCircle } from "react-icons/io";
+import Image from "next/image";
 
 export default function MenuList() {
     const labels = ["Trang chủ", "Thực đơn"];
@@ -63,10 +64,12 @@ export default function MenuList() {
                                 {filteredMenuItems.map(item => (
                                     <tr key={item.id} className="hover:bg-gray-50 transition duration-150">
                                         <td className="p-4 border-b border-gray-300">
-                                            <img
+                                            <Image
                                                 src={item.imageUrl}
                                                 alt={item.name}
-                                                className="w-16 h-16 object-cover rounded"
+                                                width={64} // tương ứng với w-16 (16 * 4 = 64px)
+                                                height={64} // tương ứng với h-16 (16 * 4 = 64px)
+                                                className="object-cover rounded"
                                             />
                                         </td>
                                         <td className="p-4 border-b border-gray-300">{item.name}</td>

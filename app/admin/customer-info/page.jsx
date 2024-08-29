@@ -5,6 +5,7 @@ import HeaderAdmin from "@/components/header-admin";
 import Navbar from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { Table } from "@/components/ui/table";
+import Image from "next/image";
 
 export default function CustomerInfo() {
     const labels = ["Trang chủ", "Thông tin khách hàng"];
@@ -13,7 +14,7 @@ export default function CustomerInfo() {
     const [customers, setCustomers] = useState([
         { id: 1, name: "Nguyễn Văn A", email: "a@example.com", status: "Active", points: 120, contact: "0123456789", avatar: "https://via.placeholder.com/50" },
         { id: 2, name: "Trần Thị B", email: "b@example.com", status: "Inactive", points: 80, contact: "0987654321", avatar: "https://via.placeholder.com/50" },
-        // Thêm dữ liệu giả lập ở đây
+    
     ]);
 
     return (
@@ -49,7 +50,13 @@ export default function CustomerInfo() {
                                     {customers.map((customer) => (
                                         <tr key={customer.id}>
                                             <td className="py-3 px-4">
-                                                <img src={customer.avatar} alt={`${customer.name}'s avatar`} className="w-12 h-12 rounded-full object-cover" />
+                                                <Image
+                                                    src={customer.avatar}
+                                                    alt={`${customer.name}'s avatar`}
+                                                    width={48}  
+                                                    height={48} 
+                                                    className="rounded-full object-cover"
+                                                />
                                             </td>
                                             <td className="py-3 px-4 text-gray-700">{customer.id}</td>
                                             <td className="py-3 px-4 text-gray-700">{customer.name}</td>
