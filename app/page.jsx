@@ -1,17 +1,29 @@
+'use client'
 import Footer from "@/components/footer";
 import Header from "@/components/header";
 import { Button } from "@/components/ui/button";
+import Head from "next/head";
 import Image from "next/image";
+import { useSelector } from "react-redux";
 
 export default function Home() {
+    const user = useSelector((state) => state.auth.user);
+    console.log("User:", user);
     return (
+        <>
+        <Head>
+        <title>Nabity Restaurant </title>
+        </Head>
+
         <div className="bg-gray-50">
             <Header />
             <main>
+           
                 {/* Hero Section */}
                 <section className="relative h-screen flex items-center justify-center text-center bg-cover bg-center" style={{ backgroundImage: "url('/images/booking.jpg')" }}>
                     <div className="absolute inset-0 bg-black opacity-50"></div>
                     <div className="relative z-10 max-w-4xl mx-auto px-4">
+                    <h1 className="text-4xl text-black" >Welcome, {user.username}</h1>
                         <h1 className="text-6xl font-extrabold text-white mb-6 animate__animated animate__fadeInDown">Exquisite Dining Experience</h1>
                         <p className="text-xl text-white mb-8 animate__animated animate__fadeInUp">Indulge in culinary perfection crafted by world-renowned chefs</p>
                         <div className="flex justify-center space-x-4">
@@ -97,5 +109,6 @@ export default function Home() {
             </main>
             <Footer />
         </div>
+        </>
     );
 }

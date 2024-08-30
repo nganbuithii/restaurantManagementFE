@@ -1,11 +1,15 @@
+'use client'
 import Footer from '@/components/footer';
 import Header from '@/components/header';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-
+import Head from "next/head";
 const AboutPage = () => {
   return (
+    <>
+
     <div className="min-h-screen flex flex-col">
+      
       <Header />
       <main className="flex-grow">
         <section className="relative bg-gradient-to-b from-orange-400 to-orange-600 py-20 px-4 sm:px-6 lg:px-8">
@@ -66,6 +70,7 @@ const AboutPage = () => {
       </main>
       <Footer />
     </div>
+    </>
   );
 }
 

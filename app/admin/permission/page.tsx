@@ -1,3 +1,4 @@
+'use client'
 import Breadcrumbs from "@/components/Breadcrumbs";
 import HeaderAdmin from "@/components/header-admin";
 import Navbar from "@/components/navbar";
