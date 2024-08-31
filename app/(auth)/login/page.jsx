@@ -1,4 +1,4 @@
-"use client"; // Đánh dấu thành phần này là Client Component
+"use client";
 
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
@@ -6,18 +6,28 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 import Image from 'next/image';
-import { FaUser, FaLock } from 'react-icons/fa';
+import { FaUser, FaLock, FaEnvelope } from 'react-icons/fa';
 import API, { authApi, endpoints } from '../../configs/API';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../../store/authSlice';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function Login() {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
     const dispatch = useDispatch();
+
+    // State for forgot password modal
+    const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
+    const [forgotPasswordStep, setForgotPasswordStep] = useState(1);
+    const [email, setEmail] = useState('');
+    const [otp, setOtp] = useState('');
+    const [newPassword, setNewPassword] = useState('');
 
     const toggleShowPassword = () => {
         setShowPassword(prevShowPassword => !prevShowPassword);
@@ -34,7 +44,6 @@ export default function Login() {
             const userResponse = await authApi(response.data.data.accessToken).get(endpoints.currentUser);
             console.log(userResponse.data)
     
-            // Dispatch action để lưu thông tin người dùng và token vào Redux
             dispatch(loginSuccess({
                 user: userResponse.data.data,
                 token: response.data.data.accessToken
@@ -46,7 +55,29 @@ export default function Login() {
             toast.error('Login failed. Please check your credentials.');
         }
     };
-    
+
+    const handleForgotPassword = async () => {
+        if (forgotPasswordStep === 1) {
+            // Send email for OTP
+            try {
+                await API.post(endpoints.forgetPassword, { email });
+                setForgotPasswordStep(2);
+                toast.success('OTP sent to your email');
+            } catch (error) {
+                toast.error('Failed to send OTP');
+            }
+        } else {
+            // Verify OTP and reset password
+            try {
+                await API.post(endpoints.resetPassword, { email, otp, newPassword });
+                toast.success('Password reset successfully');
+                setIsForgotPasswordOpen(false);
+                setForgotPasswordStep(1);
+            } catch (error) {
+                toast.error('Failed to reset password');
+            }
+        }
+    };
 
     return (
         <div className="flex min-h-screen">
@@ -107,9 +138,13 @@ export default function Login() {
                     </div>
 
                     <p className="text-sm text-gray-600 mt-4 text-right font-bold">
-                        <Link href="#" className="text-orange-700 hover:text-red-700 transition duration-200">
+                        <button 
+                            type="button" 
+                            onClick={() => setIsForgotPasswordOpen(true)} 
+                            className="text-orange-700 hover:text-red-700 transition duration-200"
+                        >
                             Forgot password?
-                        </Link>
+                        </button>
                     </p>
 
                     <p className="text-sm text-gray-600 mt-4">
@@ -140,6 +175,55 @@ export default function Login() {
                 </form>
             </div>
             <ToastContainer />
+
+            <Dialog open={isForgotPasswordOpen} onOpenChange={setIsForgotPasswordOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{forgotPasswordStep === 1 ? 'Forgot Password' : 'Reset Password'}</DialogTitle>
+                    </DialogHeader>
+                    {forgotPasswordStep === 1 && (
+                        <div className="space-y-4">
+                            <div className="flex items-center space-x-2">
+                                <FaEnvelope className="text-gray-400" />
+                                <Input 
+                                    type="email" 
+                                    placeholder="Enter your email" 
+                                    value={email} 
+                                    onChange={(e) => setEmail(e.target.value)} 
+                                />
+                            </div>
+                        </div>
+                    )}
+                    {forgotPasswordStep === 2 && (
+                        <div className="space-y-4">
+                            <Input 
+                                type="text" 
+                                placeholder="Enter OTP" 
+                                value={otp} 
+                                onChange={(e) => setOtp(e.target.value)} 
+                            />
+                            <Input 
+                                type="password" 
+                                placeholder="Enter new password" 
+                                value={newPassword} 
+                                onChange={(e) => setNewPassword(e.target.value)} 
+                            />
+                        </div>
+                    )}
+                    <DialogFooter>
+                    <Button 
+                            onClick={handleForgotPassword}
+                            className="bg-gradient-to-r from-orange-400 to-orange-500 
+                                    hover:from-orange-500 hover:to-orange-600 
+                                    text-white font-semibold py-2 px-4 rounded-md 
+                                    shadow-md transition duration-300 ease-in-out 
+                                    transform hover:-translate-y-1 hover:shadow-lg"
+                        >
+                            {forgotPasswordStep === 1 ? 'Send OTP' : 'Reset Password'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
