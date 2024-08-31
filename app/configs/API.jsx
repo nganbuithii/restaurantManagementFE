@@ -7,7 +7,8 @@ export const endpoints = {
     'currentUser':'/me',
     'register':'/auth/register',
     'forgetPassword':'/auth/forgot-password',
-    'resetPassword':'/auth/reset-password'
+    'resetPassword':'/auth/reset-password',
+    'getAllUser':'/users'
 
 }
 

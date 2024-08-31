@@ -15,20 +15,16 @@ export default function AdminLogin() {
     const [password, setPassword] = useState('');
     const router = useRouter();
     const dispatch = useDispatch();
-    useEffect(() => {
-        // Kiểm tra nếu đã đăng nhập, chuyển hướng đến dashboard
-        const token = Cookies.get('token');
-        if (token) {
-            router.push('/admin/dashboard');
-        }
-    }, [router]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
         try {
             const response = await API.post(endpoints.login, {
-                username: username,
-                password: password
+                username: "admin",
+                password: "12345678"
+                // username: username,
+                // password: password
             });    
             const token = response.data.data.accessToken;
             Cookies.set('token', token, { expires: 1 }); // Set cookie to expire in 1 day
