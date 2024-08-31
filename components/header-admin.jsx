@@ -18,8 +18,10 @@ export default function HeaderAdmin() {
 
             <div className="flex items-center space-x-4 relative">
                 <div className="flex flex-col text-right">
-                    <p className="font-semibold text-gray-800">Bùi Thị NGÂN</p>
-                    <p className="text-gray-500">Role administrator</p>
+                    <p className="font-semibold text-gray-800">ewfwef</p>
+                    <p className="text-gray-500">ADMIN</p>
+                    {/* <p className="font-semibold text-gray-800">{user.username}</p>
+                    <p className="text-gray-500">{user.role}</p> */}
                 </div>
                 <div>
                     <Image
@@ -45,7 +47,8 @@ export default function HeaderAdmin() {
                             />
                             <div>
                                 <p className="font-semibold text-gray-800">đăng yasuo</p>
-                                <p className="text-sm text-gray-500">duaconcuagio@yahoo.com</p>
+                                <p className="text-sm text-gray-500">email@gmail.com</p>
+                                {/* <p className="text-sm text-gray-500">{user.email}</p> */}
                             </div>
                         </div>
                         <hr className="my-2 border-gray-300" />

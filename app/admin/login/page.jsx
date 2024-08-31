@@ -1,48 +1,55 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChefHat, Lock } from 'lucide-react';
-import API, { endpoints, authApi } from '../configs/API';
+import API, { endpoints, authApi } from '../../configs/API';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch } from 'react-redux';
-import { loginSuccess } from '../store/authSlice';
+import { loginSuccess } from '../../store/authSlice';
+import Cookies from 'js-cookie';
 
 export default function AdminLogin() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const router = useRouter();
     const dispatch = useDispatch();
-
+    useEffect(() => {
+        // Kiểm tra nếu đã đăng nhập, chuyển hướng đến dashboard
+        const token = Cookies.get('token');
+        if (token) {
+            router.push('/admin/dashboard');
+        }
+    }, [router]);
     const handleSubmit = async (e) => {
-        e.preventDefault(); // Prevent default form submission
+        e.preventDefault();
         
         try {
             const response = await API.post(endpoints.login, {
-                username: username, // Use state variables directly
+                username: username,
                 password: password
             });    
-            localStorage.setItem('token', response.data.data.accessToken);
-    
-            const userResponse = await authApi(response.data.data.accessToken).get(endpoints.currentUser);
+            const token = response.data.data.accessToken;
+            Cookies.set('token', token, { expires: 1 }); // Set cookie to expire in 1 day
+
+            const userResponse = await authApi(token).get(endpoints.currentUser);
             console.log(userResponse.data);
     
             dispatch(loginSuccess({
                 user: userResponse.data.data,
-                token: response.data.data.accessToken
+                token: token
             }));
     
             toast.success('Login successful!');
             setTimeout(() => {
                 router.push('/admin/dashboard');
-            }, 1000); // Delay navigation to allow toast to show
+            }, 1000);
         } catch (error) {
             console.error('Login failed:', error);
             toast.error('Login failed. Please check your credentials.');
         }
     };
-
     return (
         <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-orange-100 to-yellow-100">
             <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">

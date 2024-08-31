@@ -2,6 +2,7 @@
 import Breadcrumbs from "@/components/Breadcrumbs";
 import HeaderAdmin from "@/components/header-admin";
 import Navbar from "@/components/navbar";
+import { Button } from "@/components/ui/button";
 import { CiLock } from "react-icons/ci";
 import { FaLock, FaUnlock, FaUserEdit } from "react-icons/fa";
 import { IoMdInformationCircle } from "react-icons/io";
@@ -10,6 +11,14 @@ export default function Users() {
     const labels = ["Trang chủ", "Quản lý người dùng"];
     const links = ["/admin/dashboard", "/admin/users"];
 
+    const addUser = () => {
+        try{
+
+        }catch(error){
+            console.log(error)
+            toast.error('Add new user faill');
+        }
+    }
     return (
         <div className="flex">
             <Navbar />
@@ -20,6 +29,7 @@ export default function Users() {
                     <div className="flex justify-between items-center mb-6">
                         <h1 className="text-4xl font-extrabold text-gray-900">Quản lý người dùng</h1>
                     </div>
+                    <Button className ="p-5 bg-orange-300">Add new user </Button> 
 
                     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
                         <table className="w-full text-left border-separate border-spacing-0">
