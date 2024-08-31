@@ -10,6 +10,8 @@ import { FaUser, FaLock } from 'react-icons/fa';
 import API, { authApi, endpoints } from '../../configs/API';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../../store/authSlice';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Login() {
     const { register, handleSubmit, formState: { errors } } = useForm();
@@ -22,7 +24,6 @@ export default function Login() {
     };
 
     const onSubmit = async (data) => {
-        console.log("dooooo")
         try {
             const response = await API.post(endpoints.login, {
                 username: data.username,
@@ -42,7 +43,7 @@ export default function Login() {
             router.push('/');
         } catch (error) {
             console.error('Login failed:', error);
-            alert('Login failed. Please check your credentials.');
+            toast.error('Login failed. Please check your credentials.');
         }
     };
     
@@ -138,6 +139,7 @@ export default function Login() {
 
                 </form>
             </div>
+            <ToastContainer />
         </div>
     );
 }

@@ -4,7 +4,8 @@ const HOST = "http://localhost:3005";
 
 export const endpoints = {
     'login': '/auth/login',
-    'currentUser':'/me'
+    'currentUser':'/me',
+    'register':'/auth/register',
 
 }
 
