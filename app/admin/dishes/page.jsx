@@ -7,6 +7,7 @@ import Navbar from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import Pagination from "@/components/Pagination";
 import { calculateTotalPages } from "@/lib/paginationUtils";
+import Image from "next/image";
 
 export default function Dishes() {
     const labels = ["Home", "Management Dishes"];
@@ -29,7 +30,7 @@ export default function Dishes() {
                 const total = response.data.data.total;
                 const itemsPerPage = response.data.data.itemsPerPage;
                 const calculatedTotalPages = calculateTotalPages(total, itemsPerPage);
-                
+
                 setTotalPages(calculatedTotalPages);
             } catch (error) {
                 console.error("Failed to fetch dishes:", error);
@@ -48,7 +49,7 @@ export default function Dishes() {
                     <Breadcrumbs labels={labels} links={links} />
                     <div className="flex justify-between items-center mb-6">
                         <h1 className="text-4xl font-extrabold text-gray-900">
-                        Management Dishes
+                            Management Dishes
                         </h1>
                     </div>
                     <Button className="p-5 bg-orange-300">Add new dish</Button>
@@ -77,7 +78,14 @@ export default function Dishes() {
                                         <td className="p-4 border-b border-gray-300">
                                             <div className="flex space-x-2">
                                                 {dish.images.map(image => (
-                                                    <img key={image.id} src={image.url} alt="Dish Image" className="w-16 h-16 object-cover" />
+                                                    <Image
+                                                        key={image.id}
+                                                        src={image.url}
+                                                        alt="Dish Image"
+                                                        width={64}  
+                                                        height={64} 
+                                                        className="object-cover"
+                                                    />
                                                 ))}
                                             </div>
                                         </td>
