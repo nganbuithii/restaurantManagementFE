@@ -13,7 +13,8 @@ export const endpoints = {
     'getAllFeedbacks':'/feedbacks',
     'getAllMenus':'/menu',
     'getAllInventory':'/inventory',
-    'getIngredientById': (id) => `/ingredient/${id}`
+    'getIngredientById': (id) => `/ingredient/${id}`,
+    'getAllOrders':'/orders',
 
 }
 
