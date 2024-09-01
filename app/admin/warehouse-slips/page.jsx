@@ -5,9 +5,10 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import HeaderAdmin from "@/components/header-admin";
 import Navbar from "@/components/navbar";
 import { Button } from "@/components/ui/button";
-import Pagination from "@/components/Pagination";
+
 import { calculateTotalPages } from "@/lib/paginationUtils";
 import { useSelector } from "react-redux";
+import Pagination from "@/components/CustomPagination";
 
 export default function WarehouseSlips() {
     const labels = ["Home", "Management Warehouse Slips"];

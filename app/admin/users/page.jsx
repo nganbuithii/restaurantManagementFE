@@ -6,8 +6,9 @@ import HeaderAdmin from "@/components/header-admin";
 import Navbar from "@/components/navbar";
 import { FaLock, FaUnlock } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
-import Pagination from "@/components/Pagination";
+
 import { calculateTotalPages } from "@/lib/paginationUtils";
+import Pagination from "@/components/CustomPagination";
 
 
 export default function Users() {

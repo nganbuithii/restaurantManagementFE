@@ -9,7 +9,7 @@ import SortSelect from "@/components/SortSelect";
 import Image from "next/image";
 import { CiStar } from "react-icons/ci";
 import { Button } from "@/components/ui/button";
-import Pagination from "@/components/Pagination";
+import Pagination from "@/components/CustomPagination";
 import { calculateTotalPages } from "@/lib/paginationUtils";
 import { format } from 'date-fns';
 import API, { endpoints } from "@/app/configs/API";

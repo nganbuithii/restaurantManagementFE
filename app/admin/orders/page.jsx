@@ -4,7 +4,7 @@ import API, { authApi, endpoints } from "@/app/configs/API";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import HeaderAdmin from "@/components/header-admin";
 import Navbar from "@/components/navbar";
-import Pagination from "@/components/Pagination";
+import Pagination from "@/components/CustomPagination";
 import { calculateTotalPages } from "@/lib/paginationUtils";
 import { useSelector } from "react-redux";
 

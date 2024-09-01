@@ -5,7 +5,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import HeaderAdmin from "@/components/header-admin";
 import Navbar from "@/components/navbar";
 import { Button } from "@/components/ui/button";
-import Pagination from "@/components/Pagination";
+import Pagination from "@/components/CustomPagination";
 import { calculateTotalPages } from "@/lib/paginationUtils";
 
 export default function Menus() {
