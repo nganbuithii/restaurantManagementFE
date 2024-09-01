@@ -14,7 +14,7 @@ import { FiUsers } from "react-icons/fi";
 const navItems = [
     { href: '/admin/dashboard', icon: <IoMdHome size={20} />, text: 'Trang chủ' },
     { href: '/admin/permission', icon: <MdOutlineSecurity size={20} />, text: 'Quyền truy cập' },
-    { href: '/admin/menu-list', icon: <FaUsers size={20} />, text: 'Quản lý thực đơn' },
+    { href: '/admin/menu', icon: <FaUsers size={20} />, text: 'Quản lý thực đơn' },
     { href: '/admin/users', icon: <FaUsers size={20} />, text: 'Quản lí nhân viên' },
     { href: '/admin/customer-info', icon: <FiUsers size={20} />, text: 'Thông tin khách hàng' },
     { href: '/admin/orders', icon: <FaCartFlatbed size={20} />, text: 'Quản lý đơn hàng' },

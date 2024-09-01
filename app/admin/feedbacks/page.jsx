@@ -107,7 +107,7 @@ export default function Feedbacks() {
                                 <div className="flex flex-col space-y-4">
                                     <div className="flex items-center space-x-4">
                                         <Image
-                                            src="/images/default-avatar.png"
+                                            src="/images/default-avatar.jpg"
                                             alt="avatar"
                                             width={80}
                                             height={80}
