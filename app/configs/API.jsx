@@ -11,7 +11,9 @@ export const endpoints = {
     'getAllUser':'/users',
     'getAllDishes':'/menu-item',
     'getAllFeedbacks':'/feedbacks',
-    'getAllMenus':'/menu'
+    'getAllMenus':'/menu',
+    'getAllInventory':'/inventory',
+    'getIngredientById': (id) => `/ingredient/${id}`
 
 }
 
