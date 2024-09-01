@@ -15,6 +15,7 @@ export const endpoints = {
     'getAllInventory':'/inventory',
     'getIngredientById': (id) => `/ingredient/${id}`,
     'getAllOrders':'/orders',
+    'getAllSlips':'/warehouse-slips'
 
 }
 
