@@ -24,7 +24,8 @@ const navItems = [
     { href: '/admin/promotions', icon: <BiSolidDiscount size={20} />, text: 'Quản lý khuyến mãi' },
     { href: '/admin/feedbacks', icon: <FaReplyd size={20} />, text: 'Phản hồi & Đánh giá' },
     { href: '/admin/statistic', icon: <TbReportAnalytics size={20} />, text: 'Thống kê báo cáo' },
-    { href: '/admin/reservations', icon: <TbReportAnalytics size={20} />, text: 'Lịch hẹn' }
+    { href: '/admin/reservations', icon: <TbReportAnalytics size={20} />, text: 'Lịch hẹn' },
+    { href: '/admin/suppliers', icon: <TbReportAnalytics size={20} />, text: 'Nhà cung cấp' }
 ];
 
 export default function Navbar() {

@@ -19,7 +19,8 @@ export const endpoints = {
     'getAllVouchers':'/vouchers',
     'getAllPermission':'/permission',
     'getAllReservations':'/reversations',
-    'getTables':'/table'
+    'getTables':'/table',
+    'getAllSupliers':'/suppliers',
 
 }
 
