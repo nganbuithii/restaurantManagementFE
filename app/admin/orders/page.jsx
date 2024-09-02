@@ -15,7 +15,6 @@ export default function Orders() {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const token = useSelector((state) => state.auth.token);
-console.log("TOKERN",token)
     useEffect(() => {
         const fetchOrders = async () => {
             try {
