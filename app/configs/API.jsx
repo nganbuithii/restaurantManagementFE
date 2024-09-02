@@ -18,7 +18,8 @@ export const endpoints = {
     'getAllSlips':'/warehouse-slips',
     'getAllVouchers':'/vouchers',
     'getAllPermission':'/permission',
-    'getAllReservations':'/reversations'
+    'getAllReservations':'/reversations',
+    'getTables':'/table'
 
 }
 
