@@ -17,6 +17,7 @@ export const endpoints = {
     'getAllOrders':'/orders',
     'getAllSlips':'/warehouse-slips',
     'getAllVouchers':'/vouchers',
+    'getAllPermission':'/permission'
 
 }
 

@@ -21,6 +21,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "components/Breadcrumbs.tsx", "components/Modal.jsx", "app/admin/storehouse/page.jsx", "components/header-admin.jsx", "app/(customer)/booking/page.jsx", "app/(auth)/login/page.jsx", "app/layout.jsx", "app/page.jsx", "app/(auth)/register/page.jsx", "components/header.jsx", "app/admin/users/page.jsx", "app/admin/dashboard/page.jsx", "app/admin/promotions/page.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "components/Breadcrumbs.tsx", "components/Modal.jsx", "app/admin/storehouse/page.jsx", "components/header-admin.jsx", "app/(customer)/booking/page.jsx", "app/(auth)/login/page.jsx", "app/layout.jsx", "app/page.jsx", "app/(auth)/register/page.jsx", "components/header.jsx", "app/admin/users/page.jsx", "app/admin/dashboard/page.jsx", "app/admin/promotions/page.jsx", "app/admin/permission/page.jsx"],
   "exclude": ["node_modules"]
 }
