@@ -3,8 +3,8 @@ import HeaderAdmin from "@/components/header-admin";
 import Navbar from "@/components/navbar";
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
-
-export default function AdminDashboard() {
+import withAuth from '@/hoc/withAuth';
+function AdminDashboard() {
     const user = useSelector((state) => state.auth.user);
     const router = useRouter();
 
@@ -41,3 +41,4 @@ export default function AdminDashboard() {
         </>
     );
 }
+export default withAuth(AdminDashboard);

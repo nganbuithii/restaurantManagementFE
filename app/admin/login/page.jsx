@@ -39,6 +39,8 @@ export default function AdminLogin() {
             }));
     
             toast.success('Login successful!');
+            localStorage.setItem('token', response.data.token);
+localStorage.setItem('user', JSON.stringify(response.data.user));
             setTimeout(() => {
                 router.push('/admin/dashboard');
             }, 1000);

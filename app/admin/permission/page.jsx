@@ -20,10 +20,10 @@ export default function Permission() {
     const user = useSelector((state) => state.auth.user);
     const token = useSelector((state) => state.auth.token);
 
-    if (!user) {
-        router.push('/admin/login');
-        return null; 
-    }
+    // if (!user) {
+    //     router.push('/admin/login');
+    //     return null; 
+    // }
 
     useEffect(() => {
         const fetchPermission = async () => {

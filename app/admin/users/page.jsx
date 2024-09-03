@@ -44,15 +44,16 @@ export default function Users() {
         setIsDrawerOpen(false);
     };
 
-    const fetchUsers = async () => {
+    const fetchUsers = useCallback(async () => {
         try {
             const params = {
                 page: currentPage,
             };
 
             if (selectedRole && selectedRole !== "All") {
-                params.search = selectedRole;
+                params.role = selectedRole; 
             }
+
             const response = await API.get(endpoints.getAllUser, {
                 params
             });
@@ -66,12 +67,13 @@ export default function Users() {
             setTotalPages(calculatedTotalPages);
         } catch (error) {
             console.error("Failed to fetch users:", error);
+            toast.error('Không thể lấy danh sách người dùng.');
         }
-    };
+    }, [currentPage, selectedRole]);
 
     useEffect(() => {
         fetchUsers();
-    }, [currentPage, selectedRole]);
+    }, [fetchUsers]);
 
     const handleUserCreated = () => {
         fetchUsers();
@@ -81,7 +83,7 @@ export default function Users() {
         setUserToDelete(userId);
         setDeleteDialogOpen(true);
     };
-    
+
 
     const handleCloseDeleteDialog = (confirm) => {
         setDeleteDialogOpen(false);
@@ -106,7 +108,7 @@ export default function Users() {
             console.error("Failed to delete user:", error);
         }
     };
-    
+
 
     return (
         <div className="flex min-h-screen bg-gray-100">
@@ -158,7 +160,6 @@ export default function Users() {
                                 {users.map((user) => (
                                     <tr key={user.id} className="hover:bg-gray-100 transition duration-150">
                                         <td className="p-4 border-b border-gray-300">{user.fullName}</td>
-                                        <td className="p-4 border-b border-gray-300">{user.id}</td>
                                         <td className="p-4 border-b border-gray-300">{user.email}</td>
                                         <td className="p-4 border-b border-gray-300">{user.roleName}</td>
                                         <td className="p-4 border-b border-gray-300">
@@ -170,11 +171,11 @@ export default function Users() {
                                         <td className="p-4 border-b border-gray-300 flex space-x-4">
                                             <button className="text-blue-500 hover:text-blue-700 transition duration-150">View Details</button>
                                             <button
-        className="text-red-500 hover:text-red-700 transition duration-150"
-        onClick={() => handleOpenDeleteDialog(user.id)}
-    >
-        Delete
-    </button>
+                                                className="text-red-500 hover:text-red-700 transition duration-150"
+                                                onClick={() => handleOpenDeleteDialog(user.id)}
+                                            >
+                                                Delete
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
@@ -190,12 +191,12 @@ export default function Users() {
                         />
                     </div>
                     <DeleteConfirmationDialog
-                isOpen={deleteDialogOpen}
-                onClose={handleCloseDeleteDialog}
-                onConfirm={() => userToDelete && deleteUser(userToDelete)}
-                title="Confirm Delete"
-                description="Are you sure you want to delete this user? This action cannot be undone."
-            />
+                        isOpen={deleteDialogOpen}
+                        onClose={handleCloseDeleteDialog}
+                        onConfirm={() => userToDelete && deleteUser(userToDelete)}
+                        title="Confirm Delete"
+                        description="Are you sure you want to delete this user? This action cannot be undone."
+                    />
                 </main>
             </div>
             <ToastContainer position="top-right" autoClose={3000} />

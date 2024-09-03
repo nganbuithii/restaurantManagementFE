@@ -33,7 +33,7 @@ export default function UserDrawer({ isOpen, onClose,onUserCreated }) {
         if (isOpen) {
             fetchRoles();
         }
-    }, [isOpen]);
+    }, [isOpen, token]);
 
     const handleSubmit = async () => {
         console.log({ fullName, username, email, password, phone, roleId });
