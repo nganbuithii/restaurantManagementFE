@@ -3,9 +3,11 @@
 import { useState } from "react";
 import Image from "next/image";
 import { FaBell } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
 export default function HeaderAdmin() {
     const [showModal, setShowModal] = useState(false);
+    const user = useSelector((state) => state.auth.user);
 
     return (
         <main className="ml-64 flex-1 p-6 bg-gray-100 flex items-center justify-between shadow-md">
@@ -18,17 +20,15 @@ export default function HeaderAdmin() {
 
             <div className="flex items-center space-x-4 relative">
                 <div className="flex flex-col text-right">
-                    <p className="font-semibold text-gray-800">ewfwef</p>
-                    <p className="text-gray-500">ADMIN</p>
-                    {/* <p className="font-semibold text-gray-800">{user.username}</p>
-                    <p className="text-gray-500">{user.role}</p> */}
+                    <p className="font-semibold text-gray-800">{user.username}</p>
+                    <p className="text-gray-500">{user.roleName}</p>
                 </div>
                 <div>
                     <Image
-                        src="/images/mem.jpg"
+                        src={user.avt}
                         alt="avt"
-                        width={80}
-                        height={80}
+                        width={40}
+                        height={40}
                         className="rounded-full border border-gray-300 cursor-pointer"
                         onClick={() => setShowModal(!showModal)}
                     />
@@ -39,16 +39,15 @@ export default function HeaderAdmin() {
                     <div className="absolute right-0 mt-2 w-72 bg-white shadow-lg rounded-lg p-4 border border-gray-200">
                         <div className="flex items-center space-x-3">
                             <Image
-                                src="/images/mem.jpg"
+                                src={user.avt}
                                 alt="avt"
                                 width={50}
                                 height={50}
                                 className="rounded-full border border-gray-300"
                             />
                             <div>
-                                <p className="font-semibold text-gray-800">đăng yasuo</p>
-                                <p className="text-sm text-gray-500">email@gmail.com</p>
-                                {/* <p className="text-sm text-gray-500">{user.email}</p> */}
+                                <p className="font-semibold text-gray-800">{user.fullName}</p>
+                                <p className="text-sm text-gray-500">{user.email}</p>
                             </div>
                         </div>
                         <hr className="my-2 border-gray-300" />

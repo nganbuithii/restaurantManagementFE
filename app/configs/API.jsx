@@ -21,6 +21,7 @@ export const endpoints = {
     'getAllReservations':'/reversations',
     'getTables':'/table',
     'getAllSupliers':'/suppliers',
+    'getAllIngredients':'/ingredient'
 
 }
 

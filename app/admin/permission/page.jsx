@@ -6,17 +6,24 @@ import HeaderAdmin from "@/components/header-admin";
 import Navbar from "@/components/navbar";
 import { Switch } from "@/components/ui/switch";
 import { calculateTotalPages } from "@/lib/paginationUtils";
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 
 export default function Permission() {
     const labels = ["Home", "Permissions"];
     const links = ["/admin/dashboard", "/admin/permissions"]; 
-
+    const router = useRouter();
     const [permissions, setPermissions] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const user = useSelector((state) => state.auth.user);
     const token = useSelector((state) => state.auth.token);
+
+    if (!user) {
+        router.push('/admin/login');
+        return null; 
+    }
 
     useEffect(() => {
         const fetchPermission = async () => {

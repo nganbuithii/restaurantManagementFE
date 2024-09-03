@@ -15,13 +15,14 @@ export default function AdminLogin() {
     const [password, setPassword] = useState('');
     const router = useRouter();
     const dispatch = useDispatch();
+   
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         
         try {
             const response = await API.post(endpoints.login, {
-                username: "admin",
+                username: "admin22",
                 password: "12345678"
                 // username: username,
                 // password: password

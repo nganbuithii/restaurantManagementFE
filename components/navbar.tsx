@@ -25,7 +25,8 @@ const navItems = [
     { href: '/admin/feedbacks', icon: <FaReplyd size={20} />, text: 'Phản hồi & Đánh giá' },
     { href: '/admin/statistic', icon: <TbReportAnalytics size={20} />, text: 'Thống kê báo cáo' },
     { href: '/admin/reservations', icon: <TbReportAnalytics size={20} />, text: 'Lịch hẹn' },
-    { href: '/admin/suppliers', icon: <TbReportAnalytics size={20} />, text: 'Nhà cung cấp' }
+    { href: '/admin/suppliers', icon: <TbReportAnalytics size={20} />, text: 'Nhà cung cấp' },
+    { href: '/admin/ingredients', icon: <TbReportAnalytics size={20} />, text:'Nguyên liệu' }
 ];
 
 export default function Navbar() {
