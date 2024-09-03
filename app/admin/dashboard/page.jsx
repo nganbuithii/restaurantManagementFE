@@ -8,10 +8,9 @@ export default function AdminDashboard() {
     const user = useSelector((state) => state.auth.user);
     const router = useRouter();
 
-    // Nếu user là null hoặc undefined, điều hướng người dùng đến trang 404
     if (!user) {
-        router.push('/404');
-        return null; // Không render gì cả cho đến khi redirect hoàn tất
+        router.push('/admin/login');
+        return null;
     }
 
     return (

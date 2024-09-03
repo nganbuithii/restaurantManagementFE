@@ -21,7 +21,9 @@ export const endpoints = {
     'getAllReservations':'/reversations',
     'getTables':'/table',
     'getAllSupliers':'/suppliers',
-    'getAllIngredients':'/ingredient'
+    'getAllIngredients':'/ingredient',
+    'getAllRoles':'/role',
+    'getUserById':(id) => `/users/${id}`,
 
 }
 
