@@ -17,7 +17,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from "react-redux";
 import dynamic from "next/dynamic";
 
- function Dishes() {
+function Dishes() {
     const labels = ["Home", "Management Dishes"];
     const links = ["/admin/dashboard", "/admin/dishes"];
     const [dishes, setDishes] = useState([]);
@@ -38,7 +38,7 @@ import dynamic from "next/dynamic";
     };
 
     const handleCreated = () => {
-        fetchDishes(); 
+        fetchDishes();
     };
 
     const fetchDishes = useCallback(async () => {
@@ -48,7 +48,7 @@ import dynamic from "next/dynamic";
                 params: { page: currentPage }
             });
             setDishes(response.data.data.data);
-    
+
             const total = response.data.data.total;
             const itemsPerPage = response.data.data.itemsPerPage;
             setTotalPages(calculateTotalPages(total, itemsPerPage));
@@ -56,31 +56,31 @@ import dynamic from "next/dynamic";
             console.error("Failed to fetch dishes:", error);
         }
     }, [currentPage]);
-    
+
     useEffect(() => {
         console.log("Calll");
         console.log("Current Page:", currentPage);
         fetchDishes();
     }, [token, currentPage, fetchDishes]);
-    
+
 
     const handleOpenDeleteDialog = (id) => {
         setIdToDelete(id);
         setDeleteDialogOpen(true);
     };
-    
+
     const handleCloseDeleteDialog = () => {
         setDeleteDialogOpen(false);
         setIdToDelete(null);
     };
-    
+
     const handleDeleteConfirmed = async () => {
-        const apiEndpoint = endpoints.getDisheById(IdToDelete); 
+        const apiEndpoint = endpoints.getDisheById(IdToDelete);
         console.log("Deleting  with endpoint:", apiEndpoint);
         try {
             await authApi(token).delete(apiEndpoint);
             toast.success("Dish deleted successfully!", { containerId: 'A' });
-            fetchDishes(); 
+            fetchDishes();
         } catch (error) {
             if (error.response && error.response.data) {
                 toast.error('ERROR');
@@ -108,8 +108,8 @@ import dynamic from "next/dynamic";
                     <Button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md" onClick={handleOpenDrawer}>
                         Add New Dishes
                     </Button>
-                  
-                    <DishesDrawer isOpen={isDrawerOpen} onClose={handleCloseDrawer} onCreated={handleCreated} /> 
+
+                    <DishesDrawer isOpen={isDrawerOpen} onClose={handleCloseDrawer} onCreated={handleCreated} />
                     <div className="bg-white rounded-lg shadow-lg overflow-hidden mt-4">
                         <table className="w-full text-left border-separate border-spacing-0">
                             <thead className="bg-gray-200 text-gray-700">
@@ -186,4 +186,4 @@ import dynamic from "next/dynamic";
         </div>
     );
 }
-export default dynamic (() => Promise.resolve(Dishes), {ssr: false})
+export default dynamic(() => Promise.resolve(Dishes), { ssr: false })
