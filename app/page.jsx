@@ -78,7 +78,8 @@ export default function Home() {
                                 {[1, 2, 3].map((chef) => (
                                     <div key={chef} className="text-center">
                                         <div className="relative mb-6 mx-auto w-64 h-64 rounded-full overflow-hidden shadow-lg">
-                                            <Image src={`/images/chef-${chef}.jpg`} alt={`Chef ${chef}`} layout="fill" objectFit="cover" />
+                                            <Image src={`/images/chef-${chef}.jpg`} alt={`Chef ${chef}`} width={100} height={100}  style={{ objectFit: 'cover' }} 
+                                            />
                                         </div>
                                         <h3 className="text-2xl font-semibold mb-2">Chef Name {chef}</h3>
                                         <p className="text-gray-600">Specialty Cuisine</p>

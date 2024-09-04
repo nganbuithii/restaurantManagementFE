@@ -4,6 +4,8 @@ import Navbar from "@/components/navbar";
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import withAuth from '@/hoc/withAuth';
+import dynamic from "next/dynamic";
+
 function AdminDashboard() {
     const user = useSelector((state) => state.auth.user);
     const router = useRouter();
@@ -41,4 +43,5 @@ function AdminDashboard() {
         </>
     );
 }
-export default withAuth(AdminDashboard);
+export default dynamic (() => Promise.resolve(withAuth(AdminDashboard)), {ssr: false})
+

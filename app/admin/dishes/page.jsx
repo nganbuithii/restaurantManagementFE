@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { useCallback, useEffect, useState } from "react";
 import API, { authApi, endpoints } from "@/app/configs/API";
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -15,8 +15,9 @@ import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from "react-redux";
+import dynamic from "next/dynamic";
 
-export default function Dishes() {
+ function Dishes() {
     const labels = ["Home", "Management Dishes"];
     const links = ["/admin/dashboard", "/admin/dishes"];
     const [dishes, setDishes] = useState([]);
@@ -25,9 +26,9 @@ export default function Dishes() {
     const token = useSelector((state) => state.auth.token);
 
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [IdToDelete, setIdToDelete] = useState(null);
+
     const handleOpenDrawer = () => {
         setIsDrawerOpen(true);
     };
@@ -35,72 +36,69 @@ export default function Dishes() {
     const handleCloseDrawer = () => {
         setIsDrawerOpen(false);
     };
+
     const handleCreated = () => {
-        fetchDishes();
+        fetchDishes(); 
     };
+
     const fetchDishes = useCallback(async () => {
+        console.log("fetch dishes");
         try {
             const response = await API.get(endpoints.getAllDishes, {
-                params: {
-                    page: currentPage,
-                }
+                params: { page: currentPage }
             });
-            console.log("GET Dishes SUCCESS");
             setDishes(response.data.data.data);
-
+    
             const total = response.data.data.total;
             const itemsPerPage = response.data.data.itemsPerPage;
-            const calculatedTotalPages = calculateTotalPages(total, itemsPerPage);
-
-            setTotalPages(calculatedTotalPages);
+            setTotalPages(calculateTotalPages(total, itemsPerPage));
         } catch (error) {
             console.error("Failed to fetch dishes:", error);
         }
-    },[currentPage]);
-
+    }, [currentPage]);
+    
     useEffect(() => {
+        console.log("Calll");
+        console.log("Current Page:", currentPage);
         fetchDishes();
-    }, [ fetchDishes]);
+    }, [token, currentPage, fetchDishes]);
+    
 
-     // delete 
-    const handleOpenDeleteDialog = (Id) => {
-        setIdToDelete(Id);
+    const handleOpenDeleteDialog = (id) => {
+        setIdToDelete(id);
         setDeleteDialogOpen(true);
     };
-
-
-    const handleCloseDeleteDialog = (confirm) => {
+    
+    const handleCloseDeleteDialog = () => {
         setDeleteDialogOpen(false);
-        if (confirm && IdToDelete) {
-            deleteDish(IdToDelete);
-        }
-    };
-    const deleteDish = async (Id) => {
-        const apiEndpoint = endpoints.getDisheById(Id); 
-        console.log("Deleting with endpoint:", apiEndpoint);
-        console.log("TOKEN:", token);
-        try {
-            const response = await authApi(token).delete(apiEndpoint);
-            console.log("Deleted successfully:", response);
-            toast.success('Deleted successfully!');
-            fetchDishes(); // Refresh the list after deletion
-        } catch (error) {
-            if (error.response && error.response.data) {
-                toast.error(`Error: ${error.response.data.message || 'Something went wrong'}`);
-                console.error("Error response data:", error.response.data);
-            } else {
-                toast.error('An unexpected error occurred.');
-                console.error("Unexpected error:", error);
-            }
-        }
+        setIdToDelete(null);
     };
     
+    const handleDeleteConfirmed = async () => {
+        const apiEndpoint = endpoints.getDisheById(IdToDelete); 
+        console.log("Deleting  with endpoint:", apiEndpoint);
+        try {
+            await authApi(token).delete(apiEndpoint);
+            toast.success("Dish deleted successfully!", { containerId: 'A' });
+            fetchDishes(); 
+        } catch (error) {
+            if (error.response && error.response.data) {
+                toast.error('ERROR');
+            } else {
+                toast.error('An unexpected error occurred.', { containerId: 'A' });
+            }
+            console.error("Failed to delete:", error);
+        } finally {
+            handleCloseDeleteDialog();
+        }
+    };
+
     return (
         <div className="flex">
             <Navbar />
             <div className="flex-1 flex flex-col">
                 <HeaderAdmin />
-                <main className="ml-64 flex-1 p-6 bg-gray-100">
+                <main suppressHydrationWarning className="ml-64 flex-1 p-6 bg-gray-100">
                     <Breadcrumbs labels={labels} links={links} />
                     <div className="flex justify-between items-center mb-6">
                         <h1 className="text-4xl font-extrabold text-gray-900">
@@ -108,11 +106,10 @@ export default function Dishes() {
                         </h1>
                     </div>
                     <Button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md" onClick={handleOpenDrawer}>
-                            Add New Dishes
-
-                        </Button>
-                    <DishesDrawer isOpen={isDrawerOpen} onClose={handleCloseDrawer} onCreated={handleCreated} />
-
+                        Add New Dishes
+                    </Button>
+                  
+                    <DishesDrawer isOpen={isDrawerOpen} onClose={handleCloseDrawer} onCreated={handleCreated} /> 
                     <div className="bg-white rounded-lg shadow-lg overflow-hidden mt-4">
                         <table className="w-full text-left border-separate border-spacing-0">
                             <thead className="bg-gray-200 text-gray-700">
@@ -130,7 +127,7 @@ export default function Dishes() {
                                         <td className="p-4 border-b border-gray-300">{dish.name}</td>
                                         <td className="p-4 border-b border-gray-300">{dish.price}</td>
                                         <td className="p-4 border-b border-gray-300">
-                                        <div className={`p-2 rounded-lg flex items-center space-x-2 ${dish.isActive ? 'text-green-600' : 'text-red-600'}`}>
+                                            <div className={`p-2 rounded-lg flex items-center space-x-2 ${dish.isActive ? 'text-green-600' : 'text-red-600'}`}>
                                                 {dish.isActive ? <FaUnlock /> : <FaLock />}
                                                 <span>{dish.isActive ? 'Active' : 'Inactive'}</span>
                                             </div>
@@ -142,27 +139,23 @@ export default function Dishes() {
                                                         key={image.id}
                                                         src={image.url}
                                                         alt="Dish Image"
-                                                        width={64}  
-                                                        height={64} 
+                                                        width={64}
+                                                        height={64}
                                                         className="object-cover"
                                                     />
                                                 ))}
                                             </div>
                                         </td>
                                         <td className="p-4 border-b border-gray-300 flex space-x-3">
-                                        <button
-                                                className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150"
-                                            >
+                                            <button className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150">
                                                 <FaEye className="text-blue-400 text-lg" />
                                             </button>
-                                            <button
-                                                className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150"
-                                            >
+                                            <button className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150">
                                                 <FaEdit />
                                             </button>
                                             <button
-                                            onClick={() => handleOpenDeleteDialog(dish.id)}
                                                 className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150"
+                                                onClick={() => handleOpenDeleteDialog(dish.id)}
                                             >
                                                 <MdDelete className="text-orange-500 text-lg" />
                                             </button>
@@ -183,13 +176,14 @@ export default function Dishes() {
                     <DeleteConfirmationDialog
                         isOpen={deleteDialogOpen}
                         onClose={handleCloseDeleteDialog}
-                        onConfirm={() => IdToDelete && deleteDish(IdToDelete)}
+                        onConfirm={handleDeleteConfirmed}
                         title="Confirm Delete"
                         description="Are you sure you want to delete this dish? This action cannot be undone."
                     />
                 </main>
             </div>
-            <ToastContainer position="top-right" autoClose={3000} />
+            <ToastContainer containerId="A" position="top-right" autoClose={3000} />
         </div>
     );
 }
+export default dynamic (() => Promise.resolve(Dishes), {ssr: false})

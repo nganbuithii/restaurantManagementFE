@@ -10,6 +10,7 @@ import { BiSolidDiscount } from "react-icons/bi";
 import { MdFastfood, MdOutlineSecurity } from "react-icons/md";
 import { FaCartFlatbed } from "react-icons/fa6";
 import { FiUsers } from "react-icons/fi";
+import dynamic from "next/dynamic";
 
 const navItems = [
     { href: '/admin/dashboard', icon: <IoMdHome size={20} />, text: 'Trang chủ' },
@@ -29,7 +30,7 @@ const navItems = [
     { href: '/admin/ingredients', icon: <TbReportAnalytics size={20} />, text:'Nguyên liệu' }
 ];
 
-export default function Navbar() {
+function Navbar() {
     const pathname = usePathname();
 
     return (
@@ -59,3 +60,4 @@ export default function Navbar() {
         </nav>
     );
 }
+export default dynamic (() => Promise.resolve(Navbar), {ssr: false})

@@ -1,24 +1,22 @@
+'use client';
 import { useState, useEffect } from 'react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from "@/components/ui/drawer";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
 import { useSelector } from 'react-redux';
 import { FaTimes } from 'react-icons/fa';
 import { authApi, endpoints } from '@/app/configs/API';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Image from 'next/image';
 
 export default function DishesDrawer({ isOpen, onClose, onCreated }) {
     const [name, setName] = useState('');
     const [price, setPrice] = useState('');
     const [files, setFiles] = useState([]);
-    const [ingredientQuantities, setIngredientQuantities] = useState([]);
+    const [ingredientIds, setIngredientIds] = useState([]);
     const [ingres, setIngres] = useState([]);
-    const [unit, setUnit] = useState('');
-    const [productDate, setProductDate] = useState('');
-    const [quantity, setQuantity] = useState('');
-    const [status, setStatus] = useState('');
+    const [filePreviews, setFilePreviews] = useState([]);
 
     const token = useSelector((state) => state.auth.token);
 
@@ -26,7 +24,6 @@ export default function DishesDrawer({ isOpen, onClose, onCreated }) {
         const fetchIngre = async () => {
             try {
                 const response = await authApi(token).get(endpoints.createIngredient);
-                console.log(response.data.data);
                 setIngres(response.data.data.data);
             } catch (error) {
                 console.error("Failed to fetch ingredients:", error);
@@ -38,19 +35,28 @@ export default function DishesDrawer({ isOpen, onClose, onCreated }) {
         }
     }, [isOpen, token]);
 
-    const handleFileChange = (event) => {
-        setFiles([...event.target.files]);
-    };
-
     const handleCheckboxChange = (id) => {
-        setIngredientQuantities(prev => {
-            if (prev.includes(id)) {
-                return prev.filter(ingredientId => ingredientId !== id);
+        setIngredientIds(prev => {
+            const numberId = Number(id);
+            if (prev.includes(numberId)) {
+                return prev.filter(ingredientId => ingredientId !== numberId);
             } else {
-                return [...prev, id];
+                return [...prev, numberId];
             }
         });
     };
+
+    const handleFileChange = (event) => {
+        const filesArray = Array.from(event.target.files);
+        setFiles(filesArray);
+        setFilePreviews(filesArray.map(file => URL.createObjectURL(file)));
+    };
+
+    useEffect(() => {
+        return () => {
+            filePreviews.forEach(url => URL.revokeObjectURL(url));
+        };
+    }, [filePreviews]);
 
     const handleRemoveImage = (index) => {
         setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
@@ -60,12 +66,8 @@ export default function DishesDrawer({ isOpen, onClose, onCreated }) {
         try {
             const formData = new FormData();
             formData.append('name', name);
-            formData.append('price', parseFloat(price));
-            formData.append('unit', unit);
-            formData.append('productDate', productDate);
-            formData.append('quantity', quantity);
-            formData.append('status', status);
-            ingredientQuantities.forEach(id => formData.append('ingredientQuantities[]', id));
+            formData.append('price', parseFloat(price).toFixed(2));
+            formData.append('ingredientIds', JSON.stringify(ingredientIds));
             files.forEach(file => formData.append('files', file));
 
             const response = await authApi(token).post(endpoints.getAllDishes, formData, {
@@ -74,15 +76,12 @@ export default function DishesDrawer({ isOpen, onClose, onCreated }) {
                 }
             });
 
-            toast.success('Added successfully!');
+            toast.success('Thêm món ăn thành công!', { containerId: 'B' });
             onCreated();
             onClose();
         } catch (error) {
-            if (error.response && error.response.data) {
-                toast.error(`Error: ${error.response.data.message || 'Something went wrong'}`);
-            } else {
-                toast.error('An unexpected error occurred.');
-            }
+            const errorMessage = error.response?.data?.message || 'Có lỗi xảy ra';
+            toast.error(`Lỗi: ${errorMessage}`, { containerId: 'B' });
             console.error("Failed to create dish:", error);
         }
     };
@@ -121,7 +120,7 @@ export default function DishesDrawer({ isOpen, onClose, onCreated }) {
                                     <input
                                         type="checkbox"
                                         id={`ingredient-${ingredient.id}`}
-                                        checked={ingredientQuantities.includes(ingredient.id)}
+                                        checked={ingredientIds.includes(Number(ingredient.id))}
                                         onChange={() => handleCheckboxChange(ingredient.id)}
                                         className="mr-2"
                                     />
@@ -138,16 +137,18 @@ export default function DishesDrawer({ isOpen, onClose, onCreated }) {
                                 className="mb-2"
                             />
                             <div className="flex flex-wrap">
-                                {Array.from(files).map((file, index) => (
+                                {filePreviews.map((preview, index) => (
                                     <div key={index} className="relative mr-2 mb-2">
-                                        <img
-                                            src={URL.createObjectURL(file)}
+                                        <Image
+                                            src={preview}
                                             alt={`preview-${index}`}
-                                            className="w-24 h-24 object-cover"
+                                            width={96}
+                                            height={96}
+                                            className="object-cover"
                                         />
                                         <Button
                                             onClick={() => handleRemoveImage(index)}
-                                            className="absolute -top-3 right-0 p-2 py-0 bg-red-500 text-white rounded-full "
+                                            className="absolute -top-3 right-0 p-2 py-0 bg-red-500 text-white rounded-full"
                                         >
                                             &times;
                                         </Button>
@@ -163,7 +164,7 @@ export default function DishesDrawer({ isOpen, onClose, onCreated }) {
                     </DrawerFooter>
                 </DrawerContent>
             </Drawer>
-            <ToastContainer position="top-right" autoClose={3000} />
+            <ToastContainer containerId="B" position="top-right" autoClose={3000} />
         </>
     );
 }
