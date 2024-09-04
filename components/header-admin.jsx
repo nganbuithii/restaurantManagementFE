@@ -16,6 +16,10 @@ import {
 export default function HeaderAdmin() {
     const user = useSelector((state) => state.auth.user);
 
+    if (!user) {
+        return null; 
+    }
+
     return (
         <main className="ml-64 flex-1 p-6 bg-gray-100 flex items-center justify-between shadow-md">
             <div className="flex items-center space-x-4">
@@ -26,22 +30,22 @@ export default function HeaderAdmin() {
             </div>
 
             <DropdownMenu>
-                <DropdownMenuTrigger> <div className="flex items-center space-x-4 relative">
-                    <div className="flex flex-col text-right">
-                        <p className="font-semibold text-gray-800">{user.username}</p>
-                        <p className="text-gray-500">{user.roleName}</p>
+                <DropdownMenuTrigger>
+                    <div className="flex items-center space-x-4 relative">
+                        <div className="flex flex-col text-right">
+                            <p className="font-semibold text-gray-800">{user.username}</p>
+                            <p className="text-gray-500">{user.roleName}</p>
+                        </div>
+                        <div>
+                            <Image
+                                src="/images/mem.jpg"
+                                alt="avt"
+                                width={40}
+                                height={40}
+                                className="rounded-full border border-gray-300 cursor-pointer"
+                            />
+                        </div>
                     </div>
-                    <div>
-                        <Image
-                            src="/images/mem.jpg"
-                            alt="avt"
-                            width={40}
-                            height={40}
-                            className="rounded-full border border-gray-300 cursor-pointer"
-
-                        />
-                    </div>
-                </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
@@ -50,8 +54,6 @@ export default function HeaderAdmin() {
                     <DropdownMenuItem>Log out</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
-
-
         </main>
     );
 }
