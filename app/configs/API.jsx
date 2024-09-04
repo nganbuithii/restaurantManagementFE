@@ -24,7 +24,8 @@ export const endpoints = {
     'getAllIngredients':'/ingredient',
     'getAllRoles':'/role',
     'getUserById':(id) => `/users/${id}`,
-    'createIngredient':'/ingredient'
+    'createIngredient':'/ingredient',
+    'getDisheById':(id) => `/menu-item/${id}`,
 
 }
 
