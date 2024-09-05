@@ -26,8 +26,9 @@ export const endpoints = {
     'getUserById':(id) => `/users/${id}`,
     'createIngredient':'/ingredient',
     'getDisheById':(id) => `/menu-item/${id}`,
-    'getVoucherById':(id) => `/vouchers/${id}`
-
+    'getVoucherById':(id) => `/vouchers/${id}`,
+    'getFBById':(id) => `/feedbacks/${id}`,
+    'getSupplierById':(id) => `/suppliers/${id}`
 }
 
 // Tạo một phiên bản axios với các cài đặt đã được cung cấp

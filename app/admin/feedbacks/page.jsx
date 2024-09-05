@@ -12,22 +12,30 @@ import { Button } from "@/components/ui/button";
 import Pagination from "@/components/CustomPagination";
 import { calculateTotalPages } from "@/lib/paginationUtils";
 import { format } from 'date-fns';
-import API, { endpoints } from "@/app/configs/API";
+import API, { authApi, endpoints } from "@/app/configs/API";
+import dynamic from "next/dynamic";
+import { useSelector } from "react-redux";
+import DeleteConfirmationDialog from "@/components/DeleteConfirmationDialog";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-export default function Feedbacks() {
+function Feedbacks() {
     const labels = ["Home", "Management Feedbacks"];
     const links = ["/admin/dashboard", "/admin/feedbacks"];
 
     const [searchQuery, setSearchQuery] = useState("");
-    const [sortOption, setSortOption] = useState("latest");
     const [feedbacks, setFeedbacks] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const token = useSelector((state) => state.auth.token);
+
+    
+
 
     useEffect(() => {
         const fetchFeedbacks = async () => {
             try {
-                const response = await API.get(endpoints.getAllFeedbacks, {
+                const response = await authApi(token).get(endpoints.getAllFeedbacks, {
                     params: {
                         page: currentPage,
                     }
@@ -52,23 +60,9 @@ export default function Feedbacks() {
         feedback.content.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const sortedFeedbacks = [...filteredFeedbacks].sort((a, b) => {
-        if (sortOption === "latest") {
-            return new Date(b.createdAt) - new Date(a.createdAt);
-        } else if (sortOption === "oldest") {
-            return new Date(a.createdAt) - new Date(b.createdAt);
-        } else if (sortOption === "highest") {
-            return b.rating - a.rating;
-        } else if (sortOption === "lowest") {
-            return a.rating - b.rating;
-        }
-        return 0;
-    });
 
-    const toggleFeedbackVisibility = async (id) => {
-        // Implement the API call to toggle feedback visibility
-        console.log(`Toggle visibility for feedback ${id}`);
-    };
+
+
 
     return (
         <div className="flex">
@@ -80,21 +74,7 @@ export default function Feedbacks() {
                     <div className="flex justify-between items-center mb-6">
                         <h1 className="text-4xl font-extrabold text-gray-900">
                         Feedback and rating list</h1>
-                        <div className="flex flex-row items-center space-x-4 p-4 bg-gray-100 rounded-md shadow-md">
-                            <p className="text-lg font-semibold">Sắp xếp theo</p>
-                            <div className="flex-grow">
-                                <SortSelect
-                                    value={sortOption}
-                                    onChange={setSortOption}
-                                    options={[
-                                        { value: 'latest', label: 'Mới nhất' },
-                                        { value: 'oldest', label: 'Cũ nhất' },
-                                        { value: 'highest', label: 'Đánh giá cao nhất' },
-                                        { value: 'lowest', label: 'Đánh giá thấp nhất' },
-                                    ]}
-                                />
-                            </div>
-                        </div>
+                
                         <SearchInput
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -102,49 +82,40 @@ export default function Feedbacks() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {sortedFeedbacks.map((feedback) => (
-                            <div key={feedback.id} className="bg-white rounded-lg shadow-lg overflow-hidden p-4">
-                                <div className="flex flex-col space-y-4">
-                                    <div className="flex items-center space-x-4">
-                                        <Image
-                                            src="/images/default-avatar.jpg"
-                                            alt="avatar"
-                                            width={80}
-                                            height={80}
-                                            className="rounded-full"
-                                        />
-                                        <div className="flex flex-col">
-                                            <p className="text-lg font-semibold">User ID: {feedback.userId}</p>
-                                            <p className="text-gray-500 text-sm">
-                                                {format(new Date(feedback.createdAt), 'dd-MM-yyyy')}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <p className="text-gray-700 text-base">{feedback.content}</p>
-                                    <div className="flex items-center space-x-1">
-                                        {[...Array(5)].map((_, index) => (
-                                            <CiStar
-                                                key={index}
-                                                className={`text-2xl ${
-                                                    index < feedback.rating ? 'text-yellow-500' : 'text-gray-300'
-                                                }`}
-                                            />
-                                        ))}
-                                    </div>
-                                    <Button
-                                        className={`${
-                                            feedback.isActive
-                                                ? 'bg-red-500 hover:bg-red-600'
-                                                : 'bg-green-500 hover:bg-green-600'
-                                        } text-white rounded-md px-3 py-1.5 text-sm`}
-                                        onClick={() => toggleFeedbackVisibility(feedback.id)}
-                                    >
-                                        {feedback.isActive ? 'Ẩn phản hồi' : 'Hiện phản hồi'}
-                                    </Button>
-                                </div>
-                            </div>
-                        ))}
+    {filteredFeedbacks.map((feedback) => (
+        <div key={feedback.id} className="bg-white rounded-lg shadow-lg overflow-hidden p-4">
+            <div className="flex flex-col space-y-4">
+                <div className="flex items-center space-x-4">
+                    <Image
+                        src="/images/default-avatar.jpg"
+                        alt="avatar"
+                        width={80}
+                        height={80}
+                        className="rounded-full"
+                    />
+                    <div className="flex flex-col">
+                        <p className="text-lg font-semibold">{feedback.user.fullName}</p>
+                        <p className="text-gray-500 text-sm">
+                            {format(new Date(feedback.createdAt), 'dd-MM-yyyy')}
+                        </p>
                     </div>
+                </div>
+                <p className="text-gray-700 text-base">{feedback.content}</p>
+                <div className="flex items-center space-x-1">
+                    {[...Array(5)].map((_, index) => (
+                        <CiStar
+                            key={index}
+                            className={`text-2xl ${
+                                index < feedback.rating ? 'text-yellow-500' : 'text-gray-300'
+                            }`}
+                        />
+                    ))}
+                </div>
+            </div>
+        </div>
+    ))}
+</div>
+
 
                     <div className="mt-6">
                         <Pagination
@@ -153,8 +124,10 @@ export default function Feedbacks() {
                             onPageChange={setCurrentPage}
                         />
                     </div>
+                
                 </main>
             </div>
         </div>
     );
 }
+export default dynamic(() => Promise.resolve(Feedbacks), { ssr: false })

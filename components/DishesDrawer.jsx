@@ -80,9 +80,12 @@ export default function DishesDrawer({ isOpen, onClose, onCreated }) {
             onCreated();
             onClose();
         } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Có lỗi xảy ra';
-            toast.error(`Lỗi: ${errorMessage}`, { containerId: 'B' });
-            console.error("Failed to create dish:", error);
+            if (error.response && error.response.data) {
+                toast.error('ERROR');
+            } else {
+                toast.error('An unexpected error occurred.', { containerId: 'B' });
+            }
+            console.error("Failed to delete:", error);
         }
     };
 
