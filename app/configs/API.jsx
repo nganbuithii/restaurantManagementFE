@@ -30,7 +30,8 @@ export const endpoints = {
     'getDisheById':(id) => `/menu-item/${id}`,
     'getVoucherById':(id) => `/vouchers/${id}`,
     'getFBById':(id) => `/feedbacks/${id}`,
-    'getSupplierById':(id) => `/suppliers/${id}`
+    'getSupplierById':(id) => `/suppliers/${id}`,
+    'statisticInventory':'/warehouse-slips/statistics'
 }
 
 // Tạo một phiên bản axios với các cài đặt đã được cung cấp

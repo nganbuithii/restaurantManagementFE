@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { useEffect, useState } from "react";
 import API, { authApi, endpoints } from "@/app/configs/API";
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -7,20 +7,34 @@ import Navbar from "@/components/navbar";
 import Pagination from "@/components/CustomPagination";
 import { calculateTotalPages } from "@/lib/paginationUtils";
 import { useSelector } from "react-redux";
+import { FaEye } from "react-icons/fa";
+import dynamic from "next/dynamic";
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
-export default function Orders() {
+function Orders() {
     const labels = ["Home", "Management Orders"];
     const links = ["/admin/dashboard", "/admin/orders"];
     const [orders, setOrders] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [selectedStatus, setSelectedStatus] = useState("All"); // Thêm state cho trạng thái đã chọn
     const token = useSelector((state) => state.auth.token);
+
     useEffect(() => {
         const fetchOrders = async () => {
             try {
                 const response = await authApi(token).get(endpoints.getAllOrders, {
                     params: {
                         page: currentPage,
+                        search: selectedStatus === "All" ? undefined : selectedStatus // Gửi tham số status nếu không phải "All"
                     }
                 });
                 console.log("GET Orders SUCCESS");
@@ -37,7 +51,7 @@ export default function Orders() {
         };
 
         fetchOrders();
-    }, [currentPage, token]);
+    }, [currentPage, selectedStatus, token]); // Thêm selectedStatus vào dependencies
 
     return (
         <div className="flex">
@@ -50,6 +64,22 @@ export default function Orders() {
                         <h1 className="text-4xl font-extrabold text-gray-900">
                             Management Orders
                         </h1>
+                    </div>
+                    <div className="flex justify-between items-center mb-4">
+                        <Select onValueChange={(value) => setSelectedStatus(value)}>
+                            <SelectTrigger className="w-[180px] bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <SelectValue placeholder="Filter by Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectItem value="All">All</SelectItem>
+                                    <SelectItem value="pending">PENDING</SelectItem>
+                                    <SelectItem value="processing">PROCESSING</SelectItem>
+                                    <SelectItem value="completed">COMPLETED</SelectItem>
+                                    <SelectItem value="cancelled">CANCELLED</SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     <div className="bg-white rounded-lg shadow-lg overflow-hidden mt-4">
@@ -77,14 +107,10 @@ export default function Orders() {
                                         </td>
                                         <td className="p-4 border-b border-gray-300">{new Date(order.createdAt).toLocaleDateString()}</td>
                                         <td className="p-4 border-b border-gray-300">
-                                            <button
-                                                onClick={() => alert(`Details for order ${order.id}`)}
-                                                className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150"
-                                            >
-                                                View Details
+                                            <button className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150">
+                                                <FaEye className="text-blue-400 text-lg" />
                                             </button>
                                         </td>
-                                    
                                     </tr>
                                 ))}
                             </tbody>
@@ -103,3 +129,4 @@ export default function Orders() {
         </div>
     );
 }
+export default dynamic(() => Promise.resolve(Orders), { ssr: false });
