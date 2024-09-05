@@ -1,16 +1,23 @@
 'use client'
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import HeaderAdmin from "@/components/header-admin";
 import Navbar from "@/components/navbar";
-import { FaSearch, FaUnlock, FaEdit, FaTrash } from "react-icons/fa";
-import { useSelector } from "react-redux";
+import { FaEdit, FaEye, FaLock, FaSearch, FaUnlock } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";import { useSelector } from "react-redux";
 import { calculateTotalPages } from "@/lib/paginationUtils";
-import API, { endpoints } from "@/app/configs/API";
+import API, { authApi, endpoints } from "@/app/configs/API";
 import Pagination from "@/components/CustomPagination";
+import { Button } from "@/components/ui/button";
+import dynamic from "next/dynamic";
+import VoucherDrawer from '@/components/VoucherDrawer';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import DeleteConfirmationDialog from "@/components/DeleteConfirmationDialog";
 
-export default function Promotions() {
+
+function Promotions() {
     const labels = ["Home", "Promotions"];
     const links = ["/admin/dashboard", "/admin/promotions"];
     const [promotions, setPromotions] = useState([]);
@@ -20,41 +27,84 @@ export default function Promotions() {
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
 
-    // Use useEffect to debounce the search query
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [IdToDelete, setIdToDelete] = useState(null);
+
+    const handleOpenDrawer = () => {
+        setIsDrawerOpen(true);
+    };
+
+    const handleCloseDrawer = () => {
+        setIsDrawerOpen(false);
+    };
+
+    const handleCreated = () => {
+        fetchVoucher();
+    };
+
+
+    const fetchVoucher = useCallback(async () => {
+        try {
+            const response = await API.get(endpoints.getAllVouchers, {
+                params: {
+                    page: currentPage,
+                    search: debouncedSearchQuery,
+                }
+            });
+            setPromotions(response.data.data.data); 
+
+            const total = response.data.data.total;
+            const itemsPerPage = response.data.data.itemsPerPage;
+            const calculatedTotalPages = calculateTotalPages(total, itemsPerPage);
+
+            setTotalPages(calculatedTotalPages);
+        } catch (error) {
+            console.error("Failed to fetch voucher:", error);
+        }
+    }, [currentPage, debouncedSearchQuery]);
+
     useEffect(() => {
         const handler = setTimeout(() => {
             setDebouncedSearchQuery(searchQuery);
-        }, 300); // Delay in milliseconds (e.g., 300ms)
+        }, 300);
 
         return () => {
             clearTimeout(handler);
         };
     }, [searchQuery]);
-
     useEffect(() => {
-        const fetchVoucher = async () => {
-            try {
-                const response = await API.get(endpoints.getAllVouchers, {
-                    params: {
-                        page: currentPage,
-                        search: debouncedSearchQuery,
-                    }
-                });
-                console.log("GET voucher SUCCESS");
-                setPromotions(response.data.data.data); 
-
-                const total = response.data.data.total;
-                const itemsPerPage = response.data.data.itemsPerPage;
-                const calculatedTotalPages = calculateTotalPages(total, itemsPerPage);
-
-                setTotalPages(calculatedTotalPages);
-            } catch (error) {
-                console.error("Failed to fetch voucher:", error);
-            }
-        };
-
         fetchVoucher();
-    }, [currentPage, token, debouncedSearchQuery]);
+    }, [currentPage, token, debouncedSearchQuery,fetchVoucher]);
+
+
+    const handleOpenDeleteDialog = (id) => {
+        setIdToDelete(id);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleCloseDeleteDialog = () => {
+        setDeleteDialogOpen(false);
+        setIdToDelete(null);
+    };
+
+    const handleDeleteConfirmed = async () => {
+        const apiEndpoint = endpoints.getVoucherById(IdToDelete);
+        try {
+            await authApi(token).delete(apiEndpoint);
+            console.log("DELETE")
+            toast.success("Voucher deleted successfully!", { containerId: 'A' });
+            fetchVoucher();
+        } catch (error) {
+            if (error.response && error.response.data) {
+                toast.error(`Error: ${error.response.data.message || 'Something went wrong'}`, { containerId: 'B' });
+            } else {
+                toast.error('An unexpected error occurred.', { containerId: 'A' });
+            }
+        } finally {
+            handleCloseDeleteDialog();
+        }
+    };
 
     const getStatusClass = (status) => {
         switch (status) {
@@ -71,15 +121,6 @@ export default function Promotions() {
         }
     };
 
-    const handleEdit = (id) => {
-        console.log(`Edit voucher with id: ${id}`);
-        // Logic chỉnh sửa voucher
-    };
-
-    const handleDelete = (id) => {
-        console.log(`Delete voucher with id: ${id}`);
-        // Logic xóa voucher
-    };
 
     return (
         <div className="flex">
@@ -101,6 +142,11 @@ export default function Promotions() {
                         />
                         <FaSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
                     </div>
+                    <Button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md" onClick={handleOpenDrawer}>
+                        Add New Voucher
+                    </Button>
+                    <VoucherDrawer isOpen={isDrawerOpen} onClose={handleCloseDrawer} onCreated={handleCreated} />
+
 
                     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
                         <table className="w-full text-left border-separate border-spacing-0">
@@ -131,17 +177,17 @@ export default function Promotions() {
                                             {promotion.status}
                                         </td>
                                         <td className="p-4 border-b border-gray-300 flex space-x-2">
-                                            <button
-                                                className="text-blue-500 hover:text-blue-700"
-                                                onClick={() => handleEdit(promotion.id)}
-                                            >
+                                        <button className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150">
+                                                <FaEye className="text-blue-400 text-lg" />
+                                            </button>
+                                            <button className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150">
                                                 <FaEdit />
                                             </button>
                                             <button
-                                                className="text-red-500 hover:text-red-700"
-                                                onClick={() => handleDelete(promotion.id)}
+                                                className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150"
+                                                onClick={() => handleOpenDeleteDialog(promotion.id)}
                                             >
-                                                <FaTrash />
+                                                <MdDelete className="text-orange-500 text-lg" />
                                             </button>
                                         </td>
                                     </tr>
@@ -156,8 +202,17 @@ export default function Promotions() {
                             onPageChange={setCurrentPage}
                         />
                     </div>
+                    <DeleteConfirmationDialog
+                        isOpen={deleteDialogOpen}
+                        onClose={handleCloseDeleteDialog}
+                        onConfirm={handleDeleteConfirmed}
+                        title="Confirm Delete"
+                        description="Are you sure you want to delete this voucher? This action cannot be undone."
+                    />
                 </main>
             </div>
+            <ToastContainer containerId="A" position="top-right" autoClose={3000} />
         </div>
     );
 }
+export default dynamic(() => Promise.resolve(Promotions), { ssr: false })

@@ -26,6 +26,7 @@ export const endpoints = {
     'getUserById':(id) => `/users/${id}`,
     'createIngredient':'/ingredient',
     'getDisheById':(id) => `/menu-item/${id}`,
+    'getVoucherById':(id) => `/vouchers/${id}`
 
 }
 

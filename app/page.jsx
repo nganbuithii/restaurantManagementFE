@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import Head from "next/head";
 import Image from "next/image";
 import { useSelector } from "react-redux";
+import dynamic from "next/dynamic";
 
-export default function Home() {
+function Home() {
     const user = useSelector((state) => state.auth.user);
     console.log("User:", user);
     return (
@@ -115,3 +116,4 @@ export default function Home() {
         </>
     );
 }
+export default dynamic(() => Promise.resolve(Home), { ssr: false })
