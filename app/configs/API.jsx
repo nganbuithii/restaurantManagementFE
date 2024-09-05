@@ -16,6 +16,7 @@ export const endpoints = {
     'getIngredientById': (id) => `/ingredient/${id}`,
     'getAllOrders':'/orders',
     'getAllSlips':'/warehouse-slips',
+    'getSlipById':(id) => `/warehouse-slips/${id}`,
     'getAllVouchers':'/vouchers',
     'getAllPermission':'/permission',
     'getAllReservations':'/reversations',
