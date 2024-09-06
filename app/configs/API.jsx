@@ -25,6 +25,7 @@ export const endpoints = {
     'getTables':'/table',
     'getAllSupliers':'/suppliers',
     'getAllIngredients':'/ingredient',
+    'getInById':(id) => `/ingredient/${id}`,
     'getAllRoles':'/role',
     'getUserById':(id) => `/users/${id}`,
     'createIngredient':'/ingredient',
