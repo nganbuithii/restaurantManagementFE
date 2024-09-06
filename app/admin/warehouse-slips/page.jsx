@@ -105,7 +105,7 @@ function WarehouseSlips() {
         }
     };
     const handleStatisticsClick = () => {
-        fetchStatistics(); // Gọi hàm để lấy dữ liệu thống kê khi nhấn nút
+        fetchStatistics(); 
     };
     const getStatisticsData = () => {
         if (!statistics) return;
@@ -154,16 +154,16 @@ function WarehouseSlips() {
                         ingredientStatistics?.totalInventoryQuantity || 0,
                     ],
                     backgroundColor: [
-                        'rgba(255, 99, 132, 0.7)',  // Red
-                        'rgba(54, 162, 235, 0.7)',  // Blue
-                        'rgba(75, 192, 192, 0.7)',  // Green
-                        'rgba(255, 205, 86, 0.7)'   // Yellow
+                        'rgba(255, 99, 132, 0.7)',  
+                        'rgba(54, 162, 235, 0.7)',  
+                        'rgba(75, 192, 192, 0.7)',  
+                        'rgba(255, 205, 86, 0.7)'   
                     ],
                     borderColor: [
                         '#ff6384', '#36a2eb', '#4bc0c0', '#ffcd56'
                     ],
                     borderWidth: 2,
-                    hoverOffset: 4, // Hiệu ứng khi hover
+                    hoverOffset: 4, 
                 }],
             },
         };

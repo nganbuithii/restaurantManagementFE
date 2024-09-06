@@ -31,7 +31,8 @@ export const endpoints = {
     'getVoucherById':(id) => `/vouchers/${id}`,
     'getFBById':(id) => `/feedbacks/${id}`,
     'getSupplierById':(id) => `/suppliers/${id}`,
-    'statisticInventory':'/warehouse-slips/statistics'
+    'statisticInventory':'/warehouse-slips/statistics',
+    'changeStatusOrder':(id) => `/orders/${id}/change-status`
 }
 
 // Tạo một phiên bản axios với các cài đặt đã được cung cấp

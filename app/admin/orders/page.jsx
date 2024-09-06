@@ -1,4 +1,4 @@
-'use client';
+'use client'
 import { useEffect, useState } from "react";
 import API, { authApi, endpoints } from "@/app/configs/API";
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -9,12 +9,14 @@ import { calculateTotalPages } from "@/lib/paginationUtils";
 import { useSelector } from "react-redux";
 import { FaEye } from "react-icons/fa";
 import dynamic from "next/dynamic";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import DeleteConfirmationDialog from "@/components/DeleteConfirmationDialog"; // Import confirmation dialog
 import {
     Select,
     SelectContent,
     SelectGroup,
     SelectItem,
-    SelectLabel,
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
@@ -25,7 +27,10 @@ function Orders() {
     const [orders, setOrders] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [selectedStatus, setSelectedStatus] = useState("All"); // Thêm state cho trạng thái đã chọn
+    const [selectedStatus, setSelectedStatus] = useState("All");
+    const [orderToChange, setOrderToChange] = useState(null); // Order selected for status change
+    const [newStatus, setNewStatus] = useState(""); // New status to be applied
+    const [confirmDialogOpen, setConfirmDialogOpen] = useState(false); // Confirmation dialog state
     const token = useSelector((state) => state.auth.token);
 
     useEffect(() => {
@@ -34,24 +39,57 @@ function Orders() {
                 const response = await authApi(token).get(endpoints.getAllOrders, {
                     params: {
                         page: currentPage,
-                        search: selectedStatus === "All" ? undefined : selectedStatus // Gửi tham số status nếu không phải "All"
+                        search: selectedStatus === "All" ? undefined : selectedStatus
                     }
                 });
-                console.log("GET Orders SUCCESS");
                 setOrders(response.data.data.data);
-
                 const total = response.data.data.total;
                 const itemsPerPage = response.data.data.itemsPerPage;
-                const calculatedTotalPages = calculateTotalPages(total, itemsPerPage);
-
-                setTotalPages(calculatedTotalPages);
+                setTotalPages(calculateTotalPages(total, itemsPerPage));
             } catch (error) {
                 console.error("Failed to fetch orders:", error);
             }
         };
-
         fetchOrders();
-    }, [currentPage, selectedStatus, token]); // Thêm selectedStatus vào dependencies
+    }, [currentPage, selectedStatus, token]);
+
+    // Handle open confirmation dialog for status change
+    const handleOpenChangeStatusDialog = (order, status) => {
+        console.log("ORDER", order)
+        setOrderToChange(order);
+        setNewStatus(status);
+        setConfirmDialogOpen(true);
+    };
+
+    // Handle close confirmation dialog
+    const handleCloseDialog = () => {
+        setConfirmDialogOpen(false);
+    };
+
+    // Confirm status change and call API
+    const handleConfirmChangeStatus = async () => {
+        const apiEndpoint = endpoints.changeStatusOrder( orderToChange.id);
+        try {
+            const response = await authApi(token).patch(apiEndpoint, {
+                status: newStatus,
+            });
+            toast.success("Change status order successfully!", { containerId: 'A' });
+            console.log("Status updated successfully:", response.data);
+            setConfirmDialogOpen(false);
+            setOrders((prevOrders) =>
+                prevOrders.map((order) =>
+                    order.id === orderToChange.id ? { ...order, status: newStatus } : order
+                )
+            );
+        } catch (error) {
+            if (error.response && error.response.data) {
+                toast.error('ERROR');
+            } else {
+                toast.error('An unexpected error occurred.', { containerId: 'A' });
+            }
+            console.error("Failed to delete:", error);
+        }
+    };
 
     return (
         <div className="flex">
@@ -67,7 +105,7 @@ function Orders() {
                     </div>
                     <div className="flex justify-between items-center mb-4">
                         <Select onValueChange={(value) => setSelectedStatus(value)}>
-                            <SelectTrigger className="w-[180px] bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <SelectTrigger className="w-[180px] bg-white border border-gray-300 rounded-lg shadow-sm">
                                 <SelectValue placeholder="Filter by Status" />
                             </SelectTrigger>
                             <SelectContent>
@@ -101,13 +139,23 @@ function Orders() {
                                         <td className="p-4 border-b border-gray-300">{order.totalPrice.toFixed(2)}</td>
                                         <td className="p-4 border-b border-gray-300">{order.discountPrice.toFixed(2)}</td>
                                         <td className="p-4 border-b border-gray-300">
-                                            <div className={`p-2 rounded-lg text-white ${order.status === 'COMPLETED' ? 'bg-green-500' : 'bg-yellow-500'}`}>
-                                                <p>{order.status}</p>
-                                            </div>
+                                            <Select onValueChange={(value) => handleOpenChangeStatusDialog(order, value)}>
+                                                <SelectTrigger className="w-[160px] bg-white border border-gray-300 rounded-lg shadow-sm">
+                                                    <SelectValue placeholder={order.status} />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectGroup>
+                                                        <SelectItem value="PENDING">PENDING</SelectItem>
+                                                        <SelectItem value="PROCESSING">PROCESSING</SelectItem>
+                                                        <SelectItem value="COMPLETED">COMPLETED</SelectItem>
+                                                        <SelectItem value="CANCELLED">CANCELLED</SelectItem>
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
                                         </td>
                                         <td className="p-4 border-b border-gray-300">{new Date(order.createdAt).toLocaleDateString()}</td>
                                         <td className="p-4 border-b border-gray-300">
-                                            <button className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150">
+                                            <button className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2">
                                                 <FaEye className="text-blue-400 text-lg" />
                                             </button>
                                         </td>
@@ -124,8 +172,19 @@ function Orders() {
                             onPageChange={setCurrentPage}
                         />
                     </div>
+                    
                 </main>
+                <ToastContainer containerId="A" position="top-right" autoClose={3000} />
             </div>
+
+            <DeleteConfirmationDialog
+                isOpen={confirmDialogOpen}
+                onClose={handleCloseDialog}
+                onConfirm={handleConfirmChangeStatus}
+                title="Confirm Status Change"
+                description={`Are you sure you want to change the status of this order to ${newStatus}?`}
+            />
+            
         </div>
     );
 }
