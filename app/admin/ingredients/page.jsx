@@ -23,7 +23,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import IngredientDrawer from '@/components/IngredientDrawer';
+import IngredientDrawer from './IngredientDrawer';
 import DetailDrawerIngres from './detailDrawerIngres';
 import dynamic from "next/dynamic";
 
