@@ -28,9 +28,9 @@ function Orders() {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [selectedStatus, setSelectedStatus] = useState("All");
-    const [orderToChange, setOrderToChange] = useState(null); // Order selected for status change
-    const [newStatus, setNewStatus] = useState(""); // New status to be applied
-    const [confirmDialogOpen, setConfirmDialogOpen] = useState(false); // Confirmation dialog state
+    const [orderToChange, setOrderToChange] = useState(null);
+    const [newStatus, setNewStatus] = useState(""); 
+    const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
     const token = useSelector((state) => state.auth.token);
 
     useEffect(() => {

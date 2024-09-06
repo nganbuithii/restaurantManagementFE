@@ -7,13 +7,29 @@ import Navbar from "@/components/navbar";
 import Pagination from "@/components/CustomPagination";
 import { calculateTotalPages } from "@/lib/paginationUtils";
 import { useSelector } from "react-redux";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import DeleteConfirmationDialog from "@/components/DeleteConfirmationDialog"; 
+import dynamic from "next/dynamic";
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { FaEye } from "react-icons/fa";
 
-export default function Reservations() {
+function Reservations() {
     const labels = ["Home", "Management Reservations"];
     const links = ["/admin/dashboard", "/admin/reservations"];
     const [reservations, setReservations] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [selectedReservation, setSelectedReservation] = useState(null);
+    const [newStatus, setNewStatus] = useState(""); 
+    const [confirmDialogOpen, setConfirmDialogOpen] = useState(false); 
     const token = useSelector((state) => state.auth.token);
 
     useEffect(() => {
@@ -25,12 +41,9 @@ export default function Reservations() {
                     }
                 });
                 setReservations(response.data.data.data);
-
                 const total = response.data.data.total;
                 const itemsPerPage = response.data.data.itemsPerPage;
-                const calculatedTotalPages = calculateTotalPages(total, itemsPerPage);
-
-                setTotalPages(calculatedTotalPages);
+                setTotalPages(calculateTotalPages(total, itemsPerPage));
             } catch (error) {
                 console.error("Failed to fetch data:", error);
             }
@@ -39,22 +52,35 @@ export default function Reservations() {
         fetchReservations();
     }, [currentPage, token]);
 
-    const getStatusStyle = (status) => {
-        switch (status) {
-            case 'PENDING':
-                return 'text-yellow-500';
-            case 'CONFIRMED':
-                return 'text-blue-500';
-            case 'CANCELLED':
-                return 'text-red-500';
-            case 'COMPLETED':
-                return 'text-green-500';
-            case 'FAILED':
-                return 'text-gray-500';
-            case 'RESCHEDULED':
-                return 'text-purple-500';
-            default:
-                return 'text-gray-500';
+    const handleOpenChangeStatusDialog = (reservation, status) => {
+        setSelectedReservation(reservation);
+        setNewStatus(status);
+        setConfirmDialogOpen(true);
+    };
+
+    const handleCloseDialog = () => {
+        setConfirmDialogOpen(false);
+    };
+
+    const handleConfirmChangeStatus = async () => {
+        const apiEndpoint = endpoints.changeStatusReser(selectedReservation.id);
+        try {
+            const response = await authApi(token).patch(apiEndpoint, {
+                status: newStatus,
+            });
+            toast.success("Status updated successfully!");
+            setConfirmDialogOpen(false);
+            // Update the reservation list with new status
+            setReservations((prevReservations) =>
+                prevReservations.map((reservation) =>
+                    reservation.id === selectedReservation.id
+                        ? { ...reservation, status: newStatus }
+                        : reservation
+                )
+            );
+        } catch (error) {
+            toast.error("Failed to update status.");
+            console.error("Error updating status:", error);
         }
     };
 
@@ -95,18 +121,30 @@ export default function Reservations() {
                                             {new Date(reservation.endTime).toLocaleString()}
                                         </td>
                                         <td className="p-4 border-b border-gray-300">
-                                            <p className={`p-2 rounded-lg ${getStatusStyle(reservation.status)}`}>
-                                                {reservation.status}
-                                            </p>
+                                            <Select
+                                                onValueChange={(value) => handleOpenChangeStatusDialog(reservation, value)}
+                                                value={reservation.status}
+                                            >
+                                                <SelectTrigger className="w-[160px] bg-white border border-gray-300 rounded-lg shadow-sm">
+                                                    <SelectValue placeholder={reservation.status} />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectGroup>
+                                                        <SelectItem value="PENDING">PENDING</SelectItem>
+                                                        <SelectItem value="CONFIRMED">CONFIRMED</SelectItem>
+                                                        <SelectItem value="CANCELLED">CANCELLED</SelectItem>
+                                                        <SelectItem value="COMPLETED">COMPLETED</SelectItem>
+                                                        <SelectItem value="FAILED">FAILED</SelectItem>
+                                                        <SelectItem value="RESCHEDULED">RESCHEDULED</SelectItem>
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
                                         </td>
                                         <td className="p-4 border-b border-gray-300">{reservation.tableId}</td>
                                         <td className="p-4 border-b border-gray-300">{reservation.customerId}</td>
                                         <td className="p-4 border-b border-gray-300">
-                                            <button
-                                                onClick={() => alert(`Details for reservation ${reservation.id}`)}
-                                                className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150"
-                                            >
-                                                View Details
+                                        <button className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150">
+                                                <FaEye className="text-blue-400 text-lg" />
                                             </button>
                                         </td>
                                     </tr>
@@ -124,6 +162,16 @@ export default function Reservations() {
                     </div>
                 </main>
             </div>
+
+            <DeleteConfirmationDialog
+                isOpen={confirmDialogOpen}
+                onClose={handleCloseDialog}
+                onConfirm={handleConfirmChangeStatus}
+                title="Confirm Status Change"
+                description={`Are you sure you want to change the status of this reservation to ${newStatus}?`}
+            />
+            <ToastContainer position="top-right" autoClose={3000} />
         </div>
     );
 }
+export default dynamic(() => Promise.resolve(Reservations), { ssr: false })

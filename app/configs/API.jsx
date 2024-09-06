@@ -21,6 +21,7 @@ export const endpoints = {
     'getAllVouchers':'/vouchers',
     'getAllPermission':'/permission',
     'getAllReservations':'/reversations',
+    'changeStatusReser':(id) => `/reversations/${id}/change-status`,
     'getTables':'/table',
     'getAllSupliers':'/suppliers',
     'getAllIngredients':'/ingredient',
