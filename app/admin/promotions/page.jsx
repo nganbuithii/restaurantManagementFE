@@ -4,18 +4,18 @@ import { useCallback, useEffect, useState } from "react";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import HeaderAdmin from "@/components/header-admin";
 import Navbar from "@/components/navbar";
-import { FaEdit, FaEye, FaLock, FaSearch, FaUnlock } from "react-icons/fa";
-import { MdDelete } from "react-icons/md";import { useSelector } from "react-redux";
+import { FaEdit, FaEye, FaLock, FaPlus, FaSearch, FaUnlock } from "react-icons/fa";
+import { MdDelete } from "react-icons/md"; import { useSelector } from "react-redux";
 import { calculateTotalPages } from "@/lib/paginationUtils";
 import API, { authApi, endpoints } from "@/app/configs/API";
 import Pagination from "@/components/CustomPagination";
 import { Button } from "@/components/ui/button";
 import dynamic from "next/dynamic";
-import VoucherDrawer from '@/components/VoucherDrawer';
+import VoucherDrawer from './VoucherDrawer';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DeleteConfirmationDialog from "@/components/DeleteConfirmationDialog";
-
+import DetailVoucherDrawer from './DetailVoucherDrawer'
 
 function Promotions() {
     const labels = ["Home", "Promotions"];
@@ -30,6 +30,13 @@ function Promotions() {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [IdToDelete, setIdToDelete] = useState(null);
+    const [isDrawerDetailOpen, setIsDrawerDetailOpen] = useState(false);
+    const [selectedId, setSelectedId] = useState(null);
+
+    const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+    const [selectedVoucherId, setSelectedVoucherId] = useState(null);
+    const [newVoucherStatus, setNewVoucherStatus] = useState("");
+
 
     const handleOpenDrawer = () => {
         setIsDrawerOpen(true);
@@ -52,7 +59,7 @@ function Promotions() {
                     search: debouncedSearchQuery,
                 }
             });
-            setPromotions(response.data.data.data); 
+            setPromotions(response.data.data.data);
 
             const total = response.data.data.total;
             const itemsPerPage = response.data.data.itemsPerPage;
@@ -75,7 +82,7 @@ function Promotions() {
     }, [searchQuery]);
     useEffect(() => {
         fetchVoucher();
-    }, [currentPage, token, debouncedSearchQuery,fetchVoucher]);
+    }, [currentPage, token, debouncedSearchQuery, fetchVoucher]);
 
 
     const handleOpenDeleteDialog = (id) => {
@@ -86,6 +93,14 @@ function Promotions() {
     const handleCloseDeleteDialog = () => {
         setDeleteDialogOpen(false);
         setIdToDelete(null);
+    };
+    const handleOpenDetail = (id) => {
+        console.log("VÀO ĐÂY MỞ RA")
+        setSelectedId(id);
+        setIsDrawerDetailOpen(true)
+    };
+    const handleCloseDetail = () => {
+        setIsDrawerDetailOpen(false);
     };
 
     const handleDeleteConfirmed = async () => {
@@ -105,21 +120,41 @@ function Promotions() {
             handleCloseDeleteDialog();
         }
     };
+    const handleChangeStatus = (id, newStatus) => {
+        setSelectedVoucherId(id);
+        setNewVoucherStatus(newStatus);
+        setStatusDialogOpen(true); 
+    };
 
-    const getStatusClass = (status) => {
-        switch (status) {
-            case "ACTIVE":
-                return "text-green-500";
-            case "PAUSED":
-                return "text-yellow-500";
-            case "EXPIRED":
-                return "text-red-500";
-            case "USED_UP":
-                return "text-gray-500";
-            default:
-                return "";
+    const handleStatusChangeConfirmed = async () => {
+        try {
+            await authApi(token).patch(endpoints.changeStatusVoucher(selectedVoucherId), { status: newVoucherStatus });
+            toast.success("Status updated successfully!", { containerId: 'A' });
+            fetchVoucher(); 
+        } catch (error) {
+            toast.error("Failed to update status", { containerId: 'A' });
+        } finally {
+            setStatusDialogOpen(false); // Close the confirmation dialog
+            setSelectedVoucherId(null);
+            setNewVoucherStatus("");
         }
     };
+
+
+    // const getStatusClass = (status) => {
+    //     switch (status) {
+    //         case "ACTIVE":
+    //             return "bg-green-100 text-green-800";
+    //         case "PAUSED":
+    //             return "bg-yellow-100 text-yellow-800";
+    //         case "EXPIRED":
+    //             return "bg-red-100 text-red-800";
+    //         case "USED_UP":
+    //             return "bg-gray-100 text-gray-800";
+    //         default:
+    //             return "";
+    //     }
+    // };
 
 
     return (
@@ -142,10 +177,21 @@ function Promotions() {
                         />
                         <FaSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
                     </div>
-                    <Button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md" onClick={handleOpenDrawer}>
-                        Add New Voucher
+                    <Button
+                        onClick={handleOpenDrawer}
+                        className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out flex items-center"
+                    >
+                        <FaPlus className="mr-2" /> Add voucher
                     </Button>
+
                     <VoucherDrawer isOpen={isDrawerOpen} onClose={handleCloseDrawer} onCreated={handleCreated} />
+                    <DetailVoucherDrawer
+                        isOpen={isDrawerDetailOpen}
+                        onClose={handleCloseDetail}
+                        onCreated={handleCreated}
+                        idDetail={selectedId}
+                        onUpdate={fetchVoucher}
+                    />
 
 
                     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
@@ -173,14 +219,29 @@ function Promotions() {
                                         <td className="p-4 border-b border-gray-300">
                                             {new Date(promotion.endDate).toLocaleDateString("vi-VN")}
                                         </td>
-                                        <td className={`p-4 border-b border-gray-300 ${getStatusClass(promotion.status)}`}>
-                                            {promotion.status}
+                                        {/* <td className="p-4 border-b border-gray-300">
+                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(promotion.status)}`}>
+                                                {promotion.status}
+                                            </span>
+                                        </td> */}
+                                        <td className="p-4 border-b border-gray-300">
+                                            <select
+                                                value={promotion.status}
+                                                onChange={(e) => handleChangeStatus(promotion.id, e.target.value)}
+                                                className="px-2 py-1 border rounded"
+                                            >
+                                                <option value="ACTIVE">Active</option>
+                                                <option value="PAUSED">Paused</option>
+                                                <option value="EXPIRED">Expired</option>
+                                                <option value="USED_UP">Used Up</option>
+                                            </select>
                                         </td>
+
                                         <td className="p-4 border-b border-gray-300 flex space-x-2">
-                                        <button className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150">
+                                            <button onClick={() => handleOpenDetail(promotion.id)} className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150">
                                                 <FaEye className="text-blue-400 text-lg" />
                                             </button>
-                                            <button className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150">
+                                            <button onClick={() => handleOpenDetail(promotion.id)} className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150">
                                                 <FaEdit />
                                             </button>
                                             <button
@@ -209,6 +270,14 @@ function Promotions() {
                         title="Confirm Delete"
                         description="Are you sure you want to delete this voucher? This action cannot be undone."
                     />
+                    <DeleteConfirmationDialog
+                        isOpen={statusDialogOpen}
+                        onClose={() => setStatusDialogOpen(false)}
+                        onConfirm={handleStatusChangeConfirmed}
+                        title="Confirm Status Change"
+                        description={`Are you sure you want to change the status to "${newVoucherStatus}"? This action cannot be undone.`}
+                    />
+
                 </main>
             </div>
             <ToastContainer containerId="A" position="top-right" autoClose={3000} />

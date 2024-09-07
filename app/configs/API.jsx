@@ -31,6 +31,7 @@ export const endpoints = {
     'createIngredient':'/ingredient',
     'getDisheById':(id) => `/menu-item/${id}`,
     'getVoucherById':(id) => `/vouchers/${id}`,
+    'changeStatusVoucher':(id) => `/vouchers/${id}/change-status`,
     'getFBById':(id) => `/feedbacks/${id}`,
     'getSupplierById':(id) => `/suppliers/${id}`,
     'statisticInventory':'/warehouse-slips/statistics',
