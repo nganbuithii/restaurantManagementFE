@@ -20,6 +20,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import DetailOrderDrawer from './DetailOrderDrawer'
 
 function Orders() {
     const labels = ["Home", "Management Orders"];
@@ -32,6 +33,18 @@ function Orders() {
     const [newStatus, setNewStatus] = useState(""); 
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
     const token = useSelector((state) => state.auth.token);
+
+    const [isDrawerDetailOpen, setIsDrawerDetailOpen] = useState(false);
+    const [selectedId, setSelectedId] = useState(null);
+    const handleOpenDetail = (id) => {
+        console.log("VÀO ĐÂY MỞ RA")
+        setSelectedId(id);
+        setIsDrawerDetailOpen(true)
+    };
+    const handleCloseDetail = () => {
+        setIsDrawerDetailOpen(false);
+    };
+
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -53,7 +66,6 @@ function Orders() {
         fetchOrders();
     }, [currentPage, selectedStatus, token]);
 
-    // Handle open confirmation dialog for status change
     const handleOpenChangeStatusDialog = (order, status) => {
         console.log("ORDER", order)
         setOrderToChange(order);
@@ -61,12 +73,10 @@ function Orders() {
         setConfirmDialogOpen(true);
     };
 
-    // Handle close confirmation dialog
     const handleCloseDialog = () => {
         setConfirmDialogOpen(false);
     };
 
-    // Confirm status change and call API
     const handleConfirmChangeStatus = async () => {
         const apiEndpoint = endpoints.changeStatusOrder( orderToChange.id);
         try {
@@ -119,6 +129,11 @@ function Orders() {
                             </SelectContent>
                         </Select>
                     </div>
+                    <DetailOrderDrawer
+                        isOpen={isDrawerDetailOpen}
+                        onClose={handleCloseDetail}
+                        orderId={selectedId}
+                    />
 
                     <div className="bg-white rounded-lg shadow-lg overflow-hidden mt-4">
                         <table className="w-full text-left border-separate border-spacing-0">
@@ -155,7 +170,7 @@ function Orders() {
                                         </td>
                                         <td className="p-4 border-b border-gray-300">{new Date(order.createdAt).toLocaleDateString()}</td>
                                         <td className="p-4 border-b border-gray-300">
-                                            <button className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2">
+                                            <button onClick={() => handleOpenDetail(order.id)} className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2">
                                                 <FaEye className="text-blue-400 text-lg" />
                                             </button>
                                         </td>
