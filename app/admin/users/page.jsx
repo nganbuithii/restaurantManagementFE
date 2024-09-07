@@ -1,14 +1,15 @@
 'use client'
-import { useEffect, useState , useCallback} from "react";
+import { useEffect, useState, useCallback } from "react";
 import API, { authApi, endpoints } from "@/app/configs/API";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import HeaderAdmin from "@/components/header-admin";
 import Navbar from "@/components/navbar";
-import { FaLock, FaUnlock } from "react-icons/fa";
+import { FaEdit, FaEye, FaLock, FaUnlock } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
+import dynamic from "next/dynamic";
 import {
     Select,
     SelectContent,
@@ -18,13 +19,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import UserDrawer from '@/components/UserDrawer';
-import { calculateTotalPages } from "@/lib/paginationUtils";
-import Pagination from "@/components/CustomPagination";
-import { TbDentalBroken } from "react-icons/tb";
+import UserDrawer from './UserDrawer';
 import { useSelector } from "react-redux";
+import UserDetailDrawer from './DetailUserDrawer'
+import Pagination from "@/components/CustomPagination";
+import { MdDelete } from "react-icons/md";
 
-export default function Users() {
+function Users() {
     const labels = ["Home", "User Management"];
     const links = ["/admin/dashboard", "/admin/users"];
     const [users, setUsers] = useState([]);
@@ -36,12 +37,24 @@ export default function Users() {
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
     const token = useSelector((state) => state.auth.token);
+
+    const [selectedId, setSelectedId] = useState(null);
+    const [isDrawerDetailOpen, setIsDrawerDetailOpen] = useState(false);
+
     const handleOpenDrawer = () => {
         setIsDrawerOpen(true);
     };
 
     const handleCloseDrawer = () => {
         setIsDrawerOpen(false);
+    };
+    const handleOpenDetail = (id) => {
+        console.log("VÀO ĐÂY MỞ RA")
+        setSelectedId(id);
+        setIsDrawerDetailOpen(true)
+    };
+    const handleCloseDetail = () => {
+        setIsDrawerDetailOpen(false);
     };
 
     const fetchUsers = useCallback(async () => {
@@ -51,7 +64,7 @@ export default function Users() {
             };
 
             if (selectedRole && selectedRole !== "All") {
-                params.role = selectedRole; 
+                params.role = selectedRole;
             }
 
             const response = await API.get(endpoints.getAllUser, {
@@ -67,7 +80,7 @@ export default function Users() {
             setTotalPages(calculatedTotalPages);
         } catch (error) {
             console.error("Failed to fetch users:", error);
-            toast.error('Không thể lấy danh sách người dùng.');
+            // toast.error('Không thể lấy danh sách người dùng.');
         }
     }, [currentPage, selectedRole]);
 
@@ -121,33 +134,44 @@ export default function Users() {
                         <h1 className="text-4xl font-extrabold text-gray-800">
                             User Management
                         </h1>
-                        <Button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md" onClick={handleOpenDrawer}>
-                            Add New User
-                        </Button>
 
                         <UserDrawer isOpen={isDrawerOpen} onClose={handleCloseDrawer} onUserCreated={handleUserCreated} />
                     </div>
-
-                    <div className="flex justify-between items-center mb-4">
-                        <Select onValueChange={(value) => setSelectedRole(value)}>
-                            <SelectTrigger className="w-[180px] bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <SelectValue placeholder="Filter by Role" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup>
-                                    <SelectLabel>Role</SelectLabel>
-                                    <SelectItem value="All">All</SelectItem>
-                                    <SelectItem value="customer">Customer</SelectItem>
-                                    <SelectItem value="employee">Employee</SelectItem>
-                                    <SelectItem value="admin">Administrator</SelectItem>
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
+                    <div className="flex flex-col md:flex-row items-center justify-between mb-4 space-y-4 md:space-y-0 md:space-x-4">
+                        <Button
+                            className="bg-gradient-to-r from-yellow-500 to-orange-600  text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105"
+                            onClick={handleOpenDrawer}
+                        >
+                            Add New User
+                        </Button>
+                        <UserDetailDrawer
+                        isOpen={isDrawerDetailOpen}
+                        onClose={handleCloseDetail}
+                        userId={selectedId}
+                        onUpdate={fetchUsers}
+                    />
+                        <div className="flex items-center space-x-4">
+                            <Select onValueChange={(value) => setSelectedRole(value)} className="w-full md:w-auto">
+                                <SelectTrigger className="w-full md:w-[180px] bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out">
+                                    <SelectValue placeholder="Filter by Role" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        <SelectLabel>Role</SelectLabel>
+                                        <SelectItem value="All">All</SelectItem>
+                                        <SelectItem value="customer">Customer</SelectItem>
+                                        <SelectItem value="employee">Employee</SelectItem>
+                                        <SelectItem value="admin">Administrator</SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
+
 
                     <div className="bg-white rounded-lg shadow-lg overflow-hidden mt-4">
                         <table className="w-full text-left border-separate border-spacing-0">
-                            <thead className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
+                            <thead className="bg-gradient-to-r from-yellow-500 to-orange-600 text-white">
                                 <tr>
                                     <th className="p-4 border-b border-gray-200">Name</th>
                                     <th className="p-4 border-b border-gray-200">Email</th>
@@ -163,18 +187,29 @@ export default function Users() {
                                         <td className="p-4 border-b border-gray-300">{user.email}</td>
                                         <td className="p-4 border-b border-gray-300">{user.roleName}</td>
                                         <td className="p-4 border-b border-gray-300">
-                                            <div className={`p-2 rounded-lg flex items-center space-x-2 ${user.isActive ? 'text-green-600' : 'text-red-600'}`}>
-                                                {user.isActive ? <FaUnlock /> : <FaLock />}
-                                                <span>{user.isActive ? 'Active' : 'Inactive'}</span>
-                                            </div>
+                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                                }`}>
+                                                {user.isActive ? 'Active' : 'Inactive'}
+                                            </span>
                                         </td>
                                         <td className="p-4 border-b border-gray-300 flex space-x-4">
-                                            <button className="text-blue-500 hover:text-blue-700 transition duration-150">View Details</button>
                                             <button
-                                                className="text-red-500 hover:text-red-700 transition duration-150"
-                                                onClick={() => handleOpenDeleteDialog(user.id)}
+                                                onClick={() => handleOpenDetail(user.id)}
+                                                className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150"
                                             >
-                                                Delete
+                                                <FaEye className="text-blue-400 text-lg" />
+                                            </button>
+                                            <button
+                                                // onClick={() => handleOpenDetail(ingredient.id)}
+                                                className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150"
+                                            >
+                                                <FaEdit />
+                                            </button>
+                                            <button
+                                                // onClick={() => handleOpenDeleteDialog(ingredient.id)}
+                                                className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150"
+                                            >
+                                                <MdDelete className="text-orange-500 text-lg" />
                                             </button>
                                         </td>
                                     </tr>
@@ -203,3 +238,4 @@ export default function Users() {
         </div>
     );
 }
+export default dynamic(() => Promise.resolve(Users), { ssr: false })
