@@ -38,11 +38,9 @@ export default function DishesDrawer({ isOpen, onClose, onCreated }) {
     const handleCheckboxChange = (id) => {
         setIngredientIds(prev => {
             const numberId = Number(id);
-            if (prev.includes(numberId)) {
-                return prev.filter(ingredientId => ingredientId !== numberId);
-            } else {
-                return [...prev, numberId];
-            }
+            return prev.includes(numberId) 
+                ? prev.filter(ingredientId => ingredientId !== numberId)
+                : [...prev, numberId];
         });
     };
 
@@ -53,13 +51,12 @@ export default function DishesDrawer({ isOpen, onClose, onCreated }) {
     };
 
     useEffect(() => {
-        return () => {
-            filePreviews.forEach(url => URL.revokeObjectURL(url));
-        };
+        return () => filePreviews.forEach(URL.revokeObjectURL);
     }, [filePreviews]);
 
     const handleRemoveImage = (index) => {
         setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
+        setFilePreviews(prevPreviews => prevPreviews.filter((_, i) => i !== index));
     };
 
     const handleSubmit = async () => {
@@ -70,41 +67,35 @@ export default function DishesDrawer({ isOpen, onClose, onCreated }) {
             formData.append('ingredientIds', JSON.stringify(ingredientIds));
             files.forEach(file => formData.append('files', file));
 
-            const response = await authApi(token).post(endpoints.getAllDishes, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
+            await authApi(token).post(endpoints.getAllDishes, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
 
-            toast.success('Thêm món ăn thành công!', { containerId: 'B' });
+            toast.success('Dish added successfully!', { containerId: 'B' });
             onCreated();
             onClose();
         } catch (error) {
-            if (error.response && error.response.data) {
-                toast.error('ERROR');
-            } else {
-                toast.error('An unexpected error occurred.', { containerId: 'B' });
-            }
-            console.error("Failed to delete:", error);
+            toast.error(error.response?.data || 'An unexpected error occurred.', { containerId: 'B' });
+            console.error("Failed to add dish:", error);
         }
     };
 
     return (
         <>
             <Drawer open={isOpen} onClose={onClose}>
-                <DrawerContent>
-                    <DrawerHeader>
-                        <DrawerTitle>Add New Dishes</DrawerTitle>
-                        <Button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300">
+                <DrawerContent className="bg-white">
+                    <DrawerHeader className="border-b">
+                        <DrawerTitle className="text-xl font-semibold">Add New Dish</DrawerTitle>
+                        <Button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200">
                             <FaTimes />
                         </Button>
                     </DrawerHeader>
-                    <div className="p-6 mb-4">
+                    <div className="p-6 space-y-4">
                         <Input
-                            placeholder="Name"
+                            placeholder="Dish Name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="mb-2"
+                            className="border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 focus:ring-opacity-50"
                         />
 
                         <Input
@@ -113,56 +104,59 @@ export default function DishesDrawer({ isOpen, onClose, onCreated }) {
                             step="0.01"
                             value={price}
                             onChange={(e) => setPrice(e.target.value)}
-                            className="mb-2"
+                            className="border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 focus:ring-opacity-50"
                         />
 
-                        <div className="mb-4">
-                            <label className="block mb-2">Ingredients:</label>
-                            {ingres.map((ingredient) => (
-                                <div key={ingredient.id} className="flex items-center mb-2">
-                                    <input
-                                        type="checkbox"
-                                        id={`ingredient-${ingredient.id}`}
-                                        checked={ingredientIds.includes(Number(ingredient.id))}
-                                        onChange={() => handleCheckboxChange(ingredient.id)}
-                                        className="mr-2"
-                                    />
-                                    <label htmlFor={`ingredient-${ingredient.id}`}>{ingredient.name}</label>
-                                </div>
-                            ))}
+                        <div>
+                            <h3 className="font-semibold mb-2">Ingredients:</h3>
+                            <div className="space-y-2 max-h-40 overflow-y-auto">
+                                {ingres.map((ingredient) => (
+                                    <div key={ingredient.id} className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            id={`ingredient-${ingredient.id}`}
+                                            checked={ingredientIds.includes(Number(ingredient.id))}
+                                            onChange={() => handleCheckboxChange(ingredient.id)}
+                                            className="mr-2 rounded text-orange-500 focus:ring-orange-500"
+                                        />
+                                        <label htmlFor={`ingredient-${ingredient.id}`}>{ingredient.name}</label>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                        <div className="mb-4">
-                            <label className="block mb-2">Images:</label>
+
+                        <div>
+                            <h3 className="font-semibold mb-2">Images:</h3>
                             <input
                                 type="file"
                                 multiple
                                 onChange={handleFileChange}
-                                className="mb-2"
+                                className="mb-2 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
                             />
-                            <div className="flex flex-wrap">
+                            <div className="flex flex-wrap gap-2">
                                 {filePreviews.map((preview, index) => (
-                                    <div key={index} className="relative mr-2 mb-2">
+                                    <div key={index} className="relative">
                                         <Image
                                             src={preview}
                                             alt={`preview-${index}`}
-                                            width={96}
-                                            height={96}
-                                            className="object-cover"
+                                            width={64}
+                                            height={64}
+                                            className="object-cover rounded"
                                         />
-                                        <Button
+                                        <button
                                             onClick={() => handleRemoveImage(index)}
-                                            className="absolute -top-3 right-0 p-2 py-0 bg-red-500 text-white rounded-full"
+                                            className="absolute -top-1 -right-1 bg-white rounded-full p-1 shadow-md hover:bg-gray-100"
                                         >
-                                            &times;
-                                        </Button>
+                                            <FaTimes className="text-gray-600 text-xs" />
+                                        </button>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     </div>
-                    <DrawerFooter>
-                        <Button onClick={handleSubmit} className="bg-blue-500 text-white">
-                            Submit
+                    <DrawerFooter className="border-t">
+                        <Button onClick={handleSubmit} className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded">
+                            Add Dish
                         </Button>
                     </DrawerFooter>
                 </DrawerContent>

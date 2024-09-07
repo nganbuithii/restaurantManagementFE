@@ -5,7 +5,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import HeaderAdmin from "@/components/header-admin";
 import Navbar from "@/components/navbar";
 import { Button } from "@/components/ui/button";
-import MenuDrawer from '@/components/MenuDrawer';
+import MenuDrawer from './MenuDrawer';
 import Pagination from "@/components/CustomPagination";
 import { calculateTotalPages } from "@/lib/paginationUtils";
 import { ToastContainer, toast } from 'react-toastify';
@@ -15,13 +15,15 @@ import dynamic from "next/dynamic";
 import { FaEdit, FaEye } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import DeleteConfirmationDialog from "@/components/DeleteConfirmationDialog";
-
+import DetailMenuDrawer from "./DetailMenuDrawer"
 function Menus() {
     const labels = ["Home", "Menu"];
     const links = ["/admin/dashboard", "/admin/menu"];
     const [menus, setMenu] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [isDrawerDetailOpen, setIsDrawerDetailOpen] = useState(false);
+    const [selectedId, setSelectedId] = useState(null);
 
     const token = useSelector((state) => state.auth.token);
 
@@ -60,6 +62,14 @@ function Menus() {
             console.error("Failed to fetch data:", error);
         }
     }, [currentPage]);
+    const handleOpenDetail = (id) => {
+        console.log("VÀO ĐÂY MỞ RA")
+        setSelectedId(id);
+        setIsDrawerDetailOpen(true)
+    };
+    const handleCloseDetail = () => {
+        setIsDrawerDetailOpen(false);
+    };
 
     useEffect(() => {
         fetchMenus();
@@ -105,7 +115,13 @@ function Menus() {
                         Add New Menus
                     </Button>
                     <MenuDrawer isOpen={isDrawerOpen} onClose={handleCloseDrawer} onCreated={handleCreated} />
-
+                    <DetailMenuDrawer
+                        isOpen={isDrawerDetailOpen}
+                        onClose={handleCloseDetail}
+                        onCreated={handleCreated}
+                        idDetail={selectedId}
+                        onUpdate={fetchMenus}
+                    />
                     <div className="bg-white rounded-lg shadow-lg overflow-hidden mt-4">
                         <table className="w-full text-left border-separate border-spacing-0">
                             <thead className="bg-gray-200 text-gray-700">
@@ -120,12 +136,13 @@ function Menus() {
                                     <tr key={menu.id} className="hover:bg-gray-50 transition duration-150">
                                         <td className="p-4 border-b border-gray-300">{menu.name}</td>
                                         <td className="p-4 border-b border-gray-300">
-                                            <div className={`p-2 rounded-lg flex items-center space-x-2 text-white ${menu.isActive ? 'bg-green-500' : 'bg-gray-500'}`}>
-                                                <p>{menu.isActive ? 'Active' : 'Inactive'}</p>
-                                            </div>
+                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${menu.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                                }`}>
+                                                {menu.isActive ? 'Active' : 'Inactive'}
+                                            </span>
                                         </td>
                                         <td className="p-4 border-b border-gray-300 flex space-x-3">
-                                        <button className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150">
+                                        <button    onClick={() => handleOpenDetail(menu.id)} className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150">
                                                 <FaEye className="text-blue-400 text-lg" />
                                             </button>
                                             <button className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150">

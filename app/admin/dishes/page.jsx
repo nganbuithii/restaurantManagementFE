@@ -10,12 +10,13 @@ import Image from "next/image";
 import Pagination from "@/components/CustomPagination";
 import { FaEdit, FaEye, FaLock, FaUnlock } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
-import DishesDrawer from '@/components/DishesDrawer';
+import DishesDrawer from './DishesDrawer';
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from "react-redux";
 import dynamic from "next/dynamic";
+import DetailDishesDrawer from "./DetailDishesDrawer"
 
 function Dishes() {
     const labels = ["Home", "Management Dishes"];
@@ -29,6 +30,9 @@ function Dishes() {
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [IdToDelete, setIdToDelete] = useState(null);
 
+    const [isDrawerDetailOpen, setIsDrawerDetailOpen] = useState(false);
+    const [selectedId, setSelectedId] = useState();
+
     const handleOpenDrawer = () => {
         setIsDrawerOpen(true);
     };
@@ -40,7 +44,16 @@ function Dishes() {
     const handleCreated = () => {
         fetchDishes();
     };
-
+    const handleOpenDetail = (id) => {
+        console.log("VÀO ĐÂY")
+        console.log("id", id)
+        setSelectedId(id);
+        setIsDrawerDetailOpen(true)
+        console.log("detail", isDrawerDetailOpen   )
+    };
+    const handleCloseDetail = () => {
+        setIsDrawerDetailOpen(false);
+    };
     const fetchDishes = useCallback(async () => {
         console.log("fetch dishes");
         try {
@@ -62,7 +75,6 @@ function Dishes() {
         console.log("Current Page:", currentPage);
         fetchDishes();
     }, [token, currentPage, fetchDishes]);
-
 
     const handleOpenDeleteDialog = (id) => {
         setIdToDelete(id);
@@ -105,60 +117,75 @@ function Dishes() {
                             Management Dishes
                         </h1>
                     </div>
-                    <Button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md" onClick={handleOpenDrawer}>
+                    <Button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:-translate-y-1" onClick={handleOpenDrawer}>
                         Add New Dishes
                     </Button>
 
                     <DishesDrawer isOpen={isDrawerOpen} onClose={handleCloseDrawer} onCreated={handleCreated} />
-                    <div className="bg-white rounded-lg shadow-lg overflow-hidden mt-4">
-                        <table className="w-full text-left border-separate border-spacing-0">
+                    <DetailDishesDrawer
+                        isOpen={isDrawerDetailOpen}
+                        onClose={handleCloseDetail}
+                        dishId={selectedId}
+                        onUpdate={fetchDishes}
+                    />
+                    
+
+                    <div className="bg-white rounded-lg shadow-lg overflow-hidden mt-6">
+                        <table className="w-full text-left">
                             <thead className="bg-gray-200 text-gray-700">
                                 <tr>
-                                    <th className="p-4 border-b border-gray-300">Dish Name</th>
-                                    <th className="p-4 border-b border-gray-300">Price</th>
-                                    <th className="p-4 border-b border-gray-300">Status</th>
-                                    <th className="p-4 border-b border-gray-300">Image</th>
-                                    <th className="p-4 border-b border-gray-300">Action</th>
+                                    <th className="px-6 py-4 text-sm font-semibold uppercase tracking-wider">Dish Name</th>
+                                    <th className="px-6 py-4 text-sm font-semibold uppercase tracking-wider">Price</th>
+                                    <th className="px-6 py-4 text-sm font-semibold uppercase tracking-wider">Status</th>
+                                    {/* <th className="px-6 py-4 text-sm font-semibold uppercase tracking-wider">Image</th> */}
+                                    <th className="px-6 py-4 text-sm font-semibold uppercase tracking-wider">Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className="divide-y divide-gray-200">
                                 {dishes.map((dish) => (
                                     <tr key={dish.id} className="hover:bg-gray-50 transition duration-150">
-                                        <td className="p-4 border-b border-gray-300">{dish.name}</td>
-                                        <td className="p-4 border-b border-gray-300">{dish.price}</td>
-                                        <td className="p-4 border-b border-gray-300">
-                                            <div className={`p-2 rounded-lg flex items-center space-x-2 ${dish.isActive ? 'text-green-600' : 'text-red-600'}`}>
-                                                {dish.isActive ? <FaUnlock /> : <FaLock />}
-                                                <span>{dish.isActive ? 'Active' : 'Inactive'}</span>
-                                            </div>
+                                        <td className="px-6 py-4 whitespace-nowrap">{dish.name}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">${dish.price.toFixed(2)}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${dish.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                                {dish.isActive ? 'Active' : 'Inactive'}
+                                            </span>
                                         </td>
-                                        <td className="p-4 border-b border-gray-300">
-                                            <div className="flex space-x-2">
-                                                {dish.images.map(image => (
+                                        {/* <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex -space-x-2 overflow-hidden">
+                                                {dish.images.map((image, index) => (
                                                     <Image
                                                         key={image.id}
                                                         src={image.url}
-                                                        alt="Dish Image"
-                                                        width={64}
-                                                        height={64}
-                                                        className="object-cover"
+                                                        alt={`Dish Image ${index + 1}`}
+                                                        width={48}
+                                                        height={48}
+                                                        className="inline-block h-12 w-12 rounded-full ring-2 ring-white object-cover"
                                                     />
                                                 ))}
                                             </div>
-                                        </td>
-                                        <td className="p-4 border-b border-gray-300 flex space-x-3">
-                                            <button className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150">
+                                        </td> */}
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <div className="flex space-x-2">
+                                            <button
+                                                onClick={() => handleOpenDetail(dish.id)}
+                                                className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150"
+                                            >
                                                 <FaEye className="text-blue-400 text-lg" />
                                             </button>
-                                            <button className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150">
+                                            <button
+                                                // onClick={() => handleOpenDetail(dish.id)}
+                                                className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150"
+                                            >
                                                 <FaEdit />
                                             </button>
                                             <button
-                                                className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150"
                                                 onClick={() => handleOpenDeleteDialog(dish.id)}
+                                                className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150"
                                             >
                                                 <MdDelete className="text-orange-500 text-lg" />
                                             </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -186,4 +213,5 @@ function Dishes() {
         </div>
     );
 }
+
 export default dynamic(() => Promise.resolve(Dishes), { ssr: false })
