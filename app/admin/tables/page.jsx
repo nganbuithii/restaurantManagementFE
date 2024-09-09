@@ -5,8 +5,9 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import HeaderAdmin from "@/components/header-admin";
 import Navbar from "@/components/navbar";
 import { calculateTotalPages } from "@/lib/paginationUtils";
+import dynamic from "next/dynamic";
 
-export default function Orders() {
+ function Tables() {
     const labels = ["Home", "Tables"];
     const links = ["/admin/dashboard", "/admin/tables"];
     const [tables, setTables] = useState([]);
@@ -66,3 +67,4 @@ export default function Orders() {
         </div>
     );
 }
+export default dynamic(() => Promise.resolve(Tables), { ssr: false })

@@ -1,13 +1,15 @@
-'use client';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from "@/components/ui/drawer";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
 import { useSelector } from 'react-redux';
-import { FaTimes } from 'react-icons/fa';
+import { FaTimes, FaWarehouse, FaTruck, FaBoxes, FaClipboardList, FaPlus } from 'react-icons/fa';
 import { authApi, endpoints } from '@/app/configs/API';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default function StoreHouseDrawer({ isOpen, onClose, onCreated }) {
     const [type, setType] = useState('IN');
@@ -29,6 +31,7 @@ export default function StoreHouseDrawer({ isOpen, onClose, onCreated }) {
                 setIngredients(ingredientResponse.data.data.data);
             } catch (error) {
                 console.error("Error fetching data:", error);
+                toast.error('Failed to load data. Please try again.', { containerId: 'B' });
             }
         };
 
@@ -37,22 +40,20 @@ export default function StoreHouseDrawer({ isOpen, onClose, onCreated }) {
         }
     }, [isOpen, token]);
 
-    const handleTypeChange = (e) => setType(e.target.value);
-    const handleSupplierChange = (e) => setSupplierId(e.target.value);
+    const handleTypeChange = (value) => setType(value);
+    const handleSupplierChange = (value) => setSupplierId(value);
 
-    const handleIngredientChange = (e) => {
-        const { value, checked } = e.target;
+    const handleIngredientChange = (ingredientId) => {
         setSelectedIngredients(prev => {
-            const newSelected = checked
-                ? [...prev, value]
-                : prev.filter(id => id !== value);
+            const newSelected = prev.includes(ingredientId)
+                ? prev.filter(id => id !== ingredientId)
+                : [...prev, ingredientId];
 
-            // Initialize quantities for selected ingredients
             const newQuantities = { ...ingredientQuantities };
-            if (checked) {
-                newQuantities[value] = ''; // Initialize empty quantity field
+            if (newSelected.includes(ingredientId)) {
+                newQuantities[ingredientId] = '';
             } else {
-                delete newQuantities[value];
+                delete newQuantities[ingredientId];
             }
             setIngredientQuantities(newQuantities);
 
@@ -93,87 +94,94 @@ export default function StoreHouseDrawer({ isOpen, onClose, onCreated }) {
     };
 
     return (
-        <>
-            <Drawer open={isOpen} onClose={onClose}>
-                <DrawerContent>
-                    <DrawerHeader>
-                        <DrawerTitle>Add New Warehouse Slip</DrawerTitle>
-                        <Button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300">
-                            <FaTimes />
-                        </Button>
-                    </DrawerHeader>
-                    <div className="p-6 mb-4">
-                        <div className="mb-4">
-                            <label className="block mb-2 font-semibold">Type:</label>
-                            <select
-                                value={type}
-                                onChange={handleTypeChange}
-                                className="block w-full border-gray-300 rounded-md shadow-sm"
-                            >
-                                <option value="IN">IN</option>
-                                <option value="OUT">OUT</option>
-                            </select>
+        <Drawer open={isOpen} onClose={onClose}>
+            <DrawerContent className="bg-gradient-to-br from-blue-50 to-orange-100">
+                <DrawerHeader className="bg-white shadow-md sticky top-0 z-10 p-6">
+                    <DrawerTitle className="text-3xl font-bold text-orange-800 flex items-center">
+                        <FaWarehouse className="mr-4 text-orange-600" />
+                        New Warehouse Slip
+                    </DrawerTitle>
+                    <Button onClick={onClose} className="absolute top-6 right-6 p-2 rounded-full bg-orange-100 text-orange-600 hover:bg-orange-200 transition duration-300">
+                        <FaTimes />
+                    </Button>
+                </DrawerHeader>
+                <div className="p-6 space-y-8">
+                    <div className="bg-white rounded-xl shadow-lg p-6 space-y-6">
+                        <div className="flex space-x-4">
+                            <div className="w-1/2">
+                                <Label htmlFor="type" className="text-sm font-medium text-gray-600 flex items-center mb-2">
+                                    <FaBoxes className="mr-2 text-orange-600" />
+                                    Type
+                                </Label>
+                                <Select onValueChange={handleTypeChange} value={type}>
+                                    <SelectTrigger id="type" className="w-full bg-orange-50 border-orange-300 text-orange-800 focus:ring-orange-500 focus:border-orange-500">
+                                        <SelectValue placeholder="Select Type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="IN">IN</SelectItem>
+                                        <SelectItem value="OUT">OUT</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="w-1/2">
+                                <Label htmlFor="supplier" className="text-sm font-medium text-gray-600 flex items-center mb-2">
+                                    <FaTruck className="mr-2 text-orange-600" />
+                                    Supplier
+                                </Label>
+                                <Select onValueChange={handleSupplierChange} value={supplierId}>
+                                    <SelectTrigger id="supplier" className="w-full bg-orange-50 border-orange-300 text-orange-800 focus:ring-orange-500 focus:border-orange-500">
+                                        <SelectValue placeholder="Select Supplier" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {suppliers.map((supplier) => (
+                                            <SelectItem key={supplier.id} value={supplier.id.toString()}>
+                                                {supplier.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
-
-                        <div className="mb-4">
-                            <label className="block mb-2 font-semibold">Supplier:</label>
-                            <select
-                                value={supplierId}
-                                onChange={handleSupplierChange}
-                                className="block w-full border-gray-300 rounded-md shadow-sm"
-                            >
-                                <option value="">Select Supplier</option>
-                                {suppliers.map((supplier) => (
-                                    <option key={supplier.id} value={supplier.id}>
-                                        {supplier.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div className="mb-4">
-                            <label className="block mb-2 font-semibold">Ingredients:</label>
-                            {ingredients.map((ingredient) => (
-                                <div key={ingredient.id} className="mb-2 flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        value={ingredient.id}
-                                        checked={selectedIngredients.includes(String(ingredient.id))}
-                                        onChange={handleIngredientChange}
-                                        className="mr-2"
-                                    />
-                                    <label>{ingredient.name}</label>
-                                </div>
-                            ))}
-                        </div>
-
-                        {selectedIngredients.length > 0 && (
-                            <div className="mb-4">
-                                <label className="block mb-2 font-semibold">Quantity:</label>
-                                {selectedIngredients.map((ingredientId) => (
-                                    <div key={ingredientId} className="mb-2 flex items-center">
-                                        <label className="w-1/3">
-                                            {ingredients.find(ingredient => ingredient.id === Number(ingredientId))?.name}:
-                                        </label>
-                                        <Input
-                                            type="number"
-                                            value={ingredientQuantities[ingredientId] || ''}
-                                            onChange={(e) => handleQuantityChange(ingredientId, e.target.value)}
-                                            className="w-2/3"
+                        
+                        <div>
+                            <Label className="text-sm font-medium text-gray-600 flex items-center mb-3">
+                                <FaClipboardList className="mr-2 text-orange-600" />
+                                Ingredients
+                            </Label>
+                            <div className="bg-orange-50 rounded-lg p-4 max-h-60 overflow-y-auto space-y-2">
+                                {ingredients.map((ingredient) => (
+                                    <div key={ingredient.id} className="flex items-center bg-white p-3 rounded-md shadow-sm hover:shadow-md transition-shadow duration-300">
+                                        <Checkbox
+                                            id={`ingredient-${ingredient.id}`}
+                                            checked={selectedIngredients.includes(ingredient.id.toString())}
+                                            onCheckedChange={() => handleIngredientChange(ingredient.id.toString())}
+                                            className="mr-3 text-orange-600 focus:ring-orange-500 rounded"
                                         />
+                                        <label htmlFor={`ingredient-${ingredient.id}`} className="text-orange-800 font-medium cursor-pointer flex-grow">
+                                            {ingredient.name}
+                                        </label>
+                                        {selectedIngredients.includes(ingredient.id.toString()) && (
+                                            <Input
+                                                type="number"
+                                                value={ingredientQuantities[ingredient.id] || ''}
+                                                onChange={(e) => handleQuantityChange(ingredient.id.toString(), e.target.value)}
+                                                className="w-24 ml-2 bg-orange-50 border-orange-300 focus:ring-orange-500 focus:border-orange-500"
+                                                placeholder="Qty"
+                                            />
+                                        )}
                                     </div>
                                 ))}
                             </div>
-                        )}
+                        </div>
                     </div>
-                    <DrawerFooter>
-                        <Button onClick={handleSubmit} className="bg-blue-500 text-white">
-                            Submit
-                        </Button>
-                    </DrawerFooter>
-                </DrawerContent>
-            </Drawer>
-            <ToastContainer containerId="B" position="top-right" autoClose={3000} />
-        </>
+                </div>
+                <DrawerFooter className="bg-white shadow-md sticky bottom-0 z-10 p-6">
+                    <Button onClick={handleSubmit} className="w-full bg-orange-600 text-white hover:bg-orange-700 transition duration-300 text-lg py-3 rounded-lg">
+                        <FaPlus className="mr-2" /> Create Warehouse Slip
+                    </Button>
+                </DrawerFooter>
+            </DrawerContent>
+            <ToastContainer position="top-right" autoClose={3000} containerId="B" />
+        </Drawer>
     );
 }

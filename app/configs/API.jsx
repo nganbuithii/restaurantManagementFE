@@ -10,6 +10,7 @@ export const endpoints = {
     'resetPassword':'/auth/reset-password',
     'getAllUser':'/users',
     'getUserById':(id) => `/users/${id}`,
+    'uploadAVT':'/users/upload-avt',
     'getAllDishes':'/menu-item',
     'getAllFeedbacks':'/feedbacks',
     'getAllMenus':'/menu',

@@ -21,7 +21,7 @@ const DeleteConfirmationDialog = ({ isOpen, onClose, onConfirm, title, descripti
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel onClick={() => onClose(false)}>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => { onConfirm(); onClose(false); }}>Confirm</AlertDialogAction>
+                    <AlertDialogAction className='bg-gradient-to-r from-yellow-500 to-orange-600' onClick={() => { onConfirm(); onClose(false); }}>Confirm</AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>

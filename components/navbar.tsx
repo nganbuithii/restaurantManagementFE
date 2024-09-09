@@ -13,21 +13,21 @@ import { FiUsers } from "react-icons/fi";
 import dynamic from "next/dynamic";
 
 const navItems = [
-    { href: '/admin/dashboard', icon: <IoMdHome size={20} />, text: 'Trang chủ' },
-    { href: '/admin/permission', icon: <MdOutlineSecurity size={20} />, text: 'Quyền truy cập' },
-    { href: '/admin/menu', icon: <FaUsers size={20} />, text: 'Quản lý thực đơn' },
-    { href: '/admin/users', icon: <FaUsers size={20} />, text: 'Quản lí nhân viên' },
-    { href: '/admin/tables', icon: <FiUsers size={20} />, text: 'Bàn' },
-    { href: '/admin/orders', icon: <FaCartFlatbed size={20} />, text: 'Quản lý đơn hàng' },
-    { href: '/admin/dishes', icon: <MdFastfood size={20} />, text: 'Quản lý món ăn' },
-    { href: '/admin/storehouse', icon: <FaStore size={20} />, text: 'Quản lý kho' },
-    { href: '/admin/warehouse-slips', icon: <TbBrandGoogleAnalytics size={20} />, text: 'Thống kê xuất/nhập kho' },
-    { href: '/admin/promotions', icon: <BiSolidDiscount size={20} />, text: 'Quản lý khuyến mãi' },
-    { href: '/admin/feedbacks', icon: <FaReplyd size={20} />, text: 'Phản hồi & Đánh giá' },
-    { href: '/admin/statistic', icon: <TbReportAnalytics size={20} />, text: 'Thống kê báo cáo' },
-    { href: '/admin/reservations', icon: <TbReportAnalytics size={20} />, text: 'Lịch hẹn' },
-    { href: '/admin/suppliers', icon: <TbReportAnalytics size={20} />, text: 'Nhà cung cấp' },
-    { href: '/admin/ingredients', icon: <TbReportAnalytics size={20} />, text:'Nguyên liệu' }
+    { href: '/admin/dashboard', icon: <IoMdHome size={20} />, text: 'Dashboard' },
+    { href: '/admin/permission', icon: <MdOutlineSecurity size={20} />, text: 'Permissions' },
+    { href: '/admin/menu', icon: <FaUsers size={20} />, text: 'Menu Management' },
+    { href: '/admin/users', icon: <FaUsers size={20} />, text: 'User Management' },
+    { href: '/admin/tables', icon: <FiUsers size={20} />, text: 'Tables' },
+    { href: '/admin/orders', icon: <FaCartFlatbed size={20} />, text: 'Order Management' },
+    { href: '/admin/dishes', icon: <MdFastfood size={20} />, text: 'Dish Management' },
+    { href: '/admin/storehouse', icon: <FaStore size={20} />, text: 'Storehouse Management' },
+    { href: '/admin/warehouse-slips', icon: <TbBrandGoogleAnalytics size={20} />, text: 'Warehouse Slips' },
+    { href: '/admin/promotions', icon: <BiSolidDiscount size={20} />, text: 'Promotions' },
+    { href: '/admin/feedbacks', icon: <FaReplyd size={20} />, text: 'Feedback & Reviews' },
+    { href: '/admin/statistic', icon: <TbReportAnalytics size={20} />, text: 'Statistics' },
+    { href: '/admin/reservations', icon: <TbReportAnalytics size={20} />, text: 'Reservations' },
+    { href: '/admin/suppliers', icon: <TbReportAnalytics size={20} />, text: 'Suppliers' },
+    { href: '/admin/ingredients', icon: <TbReportAnalytics size={20} />, text: 'Ingredients' }
 ];
 
 function Navbar() {
@@ -56,7 +56,6 @@ function Navbar() {
                     ))}
                 </ul>
             </div>
-
         </nav>
     );
 }

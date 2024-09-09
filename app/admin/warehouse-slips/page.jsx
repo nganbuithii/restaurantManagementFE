@@ -14,10 +14,9 @@ import { MdDelete } from "react-icons/md";
 import StoreHouseDrawer from "@/components/StoreHouseDrawer";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Chart, ArcElement, registerables } from 'chart.js';
-import { Pie, Bar } from 'react-chartjs-2';
+import DetailStoreHouseDrawer from './DetailStoreHouseDrawer'
+
 import DeleteConfirmationDialog from "@/components/DeleteConfirmationDialog";
-Chart.register(ArcElement, ...registerables);
 function WarehouseSlips() {
     const labels = ["Home", "Management Warehouse Slips"];
     const links = ["/admin/dashboard", "/admin/warehouse-slips"];
@@ -29,8 +28,10 @@ function WarehouseSlips() {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [IdToDelete, setIdToDelete] = useState(null);
-    const [statistics, setStatistics] = useState(null);
     
+    const [isDrawerDetailOpen, setIsDrawerDetailOpen] = useState(false);
+    const [selectedId, setSelectedId] = useState(null);
+
 
     const handleOpenDrawer = () => {
         setIsDrawerOpen(true);
@@ -41,9 +42,16 @@ function WarehouseSlips() {
     };
 
     const handleCreated = () => {
-        fetchDishes();
+        fetchSlips();
     };
-
+    const handleOpenDetail = (id) => {
+        console.log("VÀO ĐÂY MỞ RA")
+        setSelectedId(id);
+        setIsDrawerDetailOpen(true)
+    };
+    const handleCloseDetail = () => {
+        setIsDrawerDetailOpen(false);
+    };
     const fetchSlips  = useCallback(async () => {
         try {
             const response = await authApi(token).get(endpoints.getAllSlips, {
@@ -96,80 +104,7 @@ function WarehouseSlips() {
             handleCloseDeleteDialog();
         }
     };
-    const fetchStatistics = async () => {
-        try {
-            const response = await authApi(token).post(endpoints.statisticInventory);
-            setStatistics(response.data.data);
-        } catch (error) {
-            console.error("Failed to fetch statistics:", error);
-        }
-    };
-    const handleStatisticsClick = () => {
-        fetchStatistics(); 
-    };
-    const getStatisticsData = () => {
-        if (!statistics) return;
-    
-        const { warehouseStatistics, ingredientStatistics } = statistics;
-    
-        return {
-            warehouseData: {
-                labels: ['Total In', 'Total Out', 'Active', 'Inactive', 'Details'],
-                datasets: [{
-                    label: 'Warehouse Statistics',
-                    data: [
-                        warehouseStatistics?.totalIn || 0,
-                        warehouseStatistics?.totalOut || 0,
-                        warehouseStatistics?.totalActive || 0,
-                        warehouseStatistics?.totalInactive || 0,
-                        warehouseStatistics?.totalDetails || 0,
-                    ],
-                    backgroundColor: [
-                        'rgba(54, 162, 235, 0.7)',  // Blue
-                        'rgba(255, 99, 132, 0.7)',  // Red
-                        'rgba(75, 192, 192, 0.7)',  // Green
-                        'rgba(255, 205, 86, 0.7)',  // Yellow
-                        'rgba(153, 102, 255, 0.7)'  // Purple
-                    ],
-                    borderColor: [
-                        '#36a2eb', '#ff6384', '#4bc0c0', '#ffcd56', '#9966ff'
-                    ],
-                    borderWidth: 2, // Độ dày viền
-                    hoverOffset: 4, // Hiệu ứng hover
-                }],
-            },
-            ingredientData: {
-                labels: [
-                    'Total Ingredients',
-                    'Ingredients in Inventory',
-                    'Ingredients without Inventory',
-                    'Total Inventory Quantity'
-                ],
-                datasets: [{
-                    label: 'Ingredient Statistics',
-                    data: [
-                        ingredientStatistics?.totalIngredients || 0,
-                        ingredientStatistics?.ingredientsInInventory || 0,
-                        ingredientStatistics?.ingredientsWithoutInventory || 0,
-                        ingredientStatistics?.totalInventoryQuantity || 0,
-                    ],
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.7)',  
-                        'rgba(54, 162, 235, 0.7)',  
-                        'rgba(75, 192, 192, 0.7)',  
-                        'rgba(255, 205, 86, 0.7)'   
-                    ],
-                    borderColor: [
-                        '#ff6384', '#36a2eb', '#4bc0c0', '#ffcd56'
-                    ],
-                    borderWidth: 2,
-                    hoverOffset: 4, 
-                }],
-            },
-        };
-    };
-    
-    const { warehouseData, ingredientData } = getStatisticsData() || {};
+
     return (
         <div className="flex">
             <Navbar />
@@ -184,28 +119,19 @@ function WarehouseSlips() {
                         <Button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md" onClick={handleOpenDrawer}>
                             Add New Slip
                         </Button>
-                        <Button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md" onClick={handleStatisticsClick}>
-                            Thống kê
-                        </Button>
+                    
                     </div>
                     <StoreHouseDrawer isOpen={isDrawerOpen} onClose={handleCloseDrawer} onCreated={handleCreated} />
+                    <DetailStoreHouseDrawer
+                        isOpen={isDrawerDetailOpen}
+                        onClose={handleCloseDetail}
+                        onCreated={handleCreated}
+                        slipId={selectedId}
+                        onUpdated={fetchSlips}
+                    />
 
 
-                    {statistics && (
-                        <div className="mt-6">
-                            <h2 className="text-2xl font-bold mb-4">Statistics</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="bg-white rounded-lg shadow-lg p-6">
-                                    <h3 className="text-xl font-semibold mb-4">Warehouse Statistics</h3>
-                                    <Pie data={warehouseData} />
-                                </div>
-                                <div className="bg-white rounded-lg shadow-lg p-6">
-                                    <h3 className="text-xl font-semibold mb-4">Ingredient Statistics</h3>
-                                    <Bar data={ingredientData} />
-                                </div>
-                            </div>
-                        </div>
-                    )}
+            
 
                     <div className="bg-white rounded-lg shadow-lg overflow-hidden mt-4">
                         <table className="w-full text-left border-separate border-spacing-0">
@@ -224,13 +150,14 @@ function WarehouseSlips() {
                                         <td className="p-4 border-b border-gray-300">{slip.id}</td>
                                         <td className="p-4 border-b border-gray-300">{slip.type}</td>
                                         <td className="p-4 border-b border-gray-300">
-                                            <div className={`p-2 rounded-lg text-white `}>
-                                                <p className={`${slip.isActive ? 'text-green-500' : 'text-red-500'}`}>{slip.isActive ? 'Active' : 'Inactive'}</p>
-                                            </div>
+                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${slip.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                                }`}>
+                                                {slip.isActive ? 'Active' : 'Inactive'}
+                                            </span>
                                         </td>
                                         <td className="p-4 border-b border-gray-300">{new Date(slip.createdAt).toLocaleDateString()}</td>
                                         <td className="p-4 border-b border-gray-300 flex space-x-3">
-                                            <button className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150">
+                                            <button  onClick={() => handleOpenDetail(slip.id)} className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150">
                                                 <FaEye className="text-blue-400 text-lg" />
                                             </button>
                                             <button className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150">
