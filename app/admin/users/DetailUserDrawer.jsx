@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from "@/components/ui/drawer";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,33 @@ export default function UserDrawer({ isOpen, onClose, userId, onUpdate }) {
     const token = useSelector((state) => state.auth.token);
     const isNewUser = !userId;
 
+
+    const resetUserForm = () => {
+        setUser({
+            id: '', email: '', fullName: '', phone: '', username: '', avatar: '', roleId: '', isActive: true, password: ''
+        });
+        setIsEditing(true);
+    };
+
+    const fetchUserDetails = useCallback(async () => {
+        try {
+            const response = await authApi(token).get(endpoints.getUserById(userId));
+            setUser({...response.data.data, password: ''});
+            setIsEditing(false);
+        } catch (error) {
+            console.error("Failed to fetch user details:", error);
+            toast.error('Failed to load user details', { containerId: 'A' });
+        }
+    },[token, userId]);
+
+    const fetchRoles =useCallback( async () => {
+        try {
+            const response = await authApi(token).get(endpoints.getAllRoles);
+            setRoles(response.data.data);
+        } catch (error) {
+            console.error("Failed to fetch roles:", error);
+        }
+    },[token]);
     useEffect(() => {
         if (isOpen) {
             fetchRoles();
@@ -29,35 +56,7 @@ export default function UserDrawer({ isOpen, onClose, userId, onUpdate }) {
                 resetUserForm();
             }
         }
-    }, [isOpen, userId, token]);
-
-    const resetUserForm = () => {
-        setUser({
-            id: '', email: '', fullName: '', phone: '', username: '', avatar: '', roleId: '', isActive: true, password: ''
-        });
-        setIsEditing(true);
-    };
-
-    const fetchUserDetails = async () => {
-        try {
-            const response = await authApi(token).get(endpoints.getUserById(userId));
-            setUser({...response.data.data, password: ''});
-            setIsEditing(false);
-        } catch (error) {
-            console.error("Failed to fetch user details:", error);
-            toast.error('Failed to load user details', { containerId: 'A' });
-        }
-    };
-
-    const fetchRoles = async () => {
-        try {
-            const response = await authApi(token).get(endpoints.getAllRoles);
-            setRoles(response.data.data);
-        } catch (error) {
-            console.error("Failed to fetch roles:", error);
-        }
-    };
-
+    }, [isOpen, userId, token, fetchRoles,fetchUserDetails]);
     const handleChange = (e) => {
         const { name, value } = e.target;
         setUser(prev => ({ ...prev, [name]: value }));

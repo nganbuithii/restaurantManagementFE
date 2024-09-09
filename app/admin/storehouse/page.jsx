@@ -57,7 +57,7 @@ function StoreHouse() {
         } catch (error) {
             console.error("Failed to fetch inventory:", error);
         }
-    }, [currentPage]);
+    }, [token,currentPage]);
 
     useEffect(() => {
         fetchInventory();

@@ -54,7 +54,7 @@ function Feedbacks() {
         };
 
         fetchFeedbacks();
-    }, [currentPage]);
+    }, [token,currentPage]);
 
     const filteredFeedbacks = feedbacks.filter(feedback =>
         feedback.content.toLowerCase().includes(searchQuery.toLowerCase())

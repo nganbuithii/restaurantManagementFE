@@ -70,7 +70,7 @@ function WarehouseSlips() {
         } catch (error) {
             console.error("Failed to fetch slips:", error);
         }
-    }, [currentPage]);
+    }, [token,currentPage]);
 
     useEffect(() => {
         fetchSlips();

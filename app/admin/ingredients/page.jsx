@@ -95,7 +95,7 @@ function Ingredients() {
         } catch (error) {
             console.error("Failed to fetch ingredients:", error);
         }
-    }, [currentPage, token, debouncedSearchQuery, sortOrder]);
+    }, [currentPage, token, debouncedSearchQuery, sortOrder,totalPages]);
 
 
     useEffect(() => {

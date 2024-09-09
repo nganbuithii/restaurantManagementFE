@@ -80,7 +80,7 @@ function Supplier() {
         } catch (error) {
             console.error("Failed to fetch suppliers:", error);
         }
-    }, [currentPage,debouncedSearchQuery,]);
+    }, [currentPage,debouncedSearchQuery,token]);
 
     useEffect(() => {
         fetchSuppliers();
