@@ -112,15 +112,16 @@ function Dishes() {
                 <HeaderAdmin />
                 <main suppressHydrationWarning className="ml-64 flex-1 p-6 bg-gray-100">
                     <Breadcrumbs labels={labels} links={links} />
-                    <div className="flex justify-between items-center mb-6">
+                    <div className="flex flex-row justify-between items-center mb-6">
                         <h1 className="text-4xl font-extrabold text-gray-900">
                             Management Dishes
                         </h1>
-                    </div>
-                    <Button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:-translate-y-1" onClick={handleOpenDrawer}>
+                        <Button className="bg-gradient-to-r from-yellow-500 to-orange-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:-translate-y-1" onClick={handleOpenDrawer}>
                         Add New Dishes
                     </Button>
 
+                    </div>
+                 
                     <DishesDrawer isOpen={isDrawerOpen} onClose={handleCloseDrawer} onCreated={handleCreated} />
                     <DetailDishesDrawer
                         isOpen={isDrawerDetailOpen}

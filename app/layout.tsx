@@ -3,7 +3,9 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import store from './store';
 import { Provider } from 'react-redux';
-
+import 'swiper/css';
+import 'swiper/css/pagination';
+import 'swiper/css/navigation';
 export default function RootLayout({
   children,
 }: Readonly<{

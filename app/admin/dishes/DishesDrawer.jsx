@@ -75,8 +75,10 @@ export default function DishesDrawer({ isOpen, onClose, onCreated }) {
             onCreated();
             onClose();
         } catch (error) {
+            onClose();
             toast.error(error.response?.data || 'An unexpected error occurred.', { containerId: 'B' });
             console.error("Failed to add dish:", error);
+           
         }
     };
 

@@ -18,6 +18,8 @@ function AdminDashboard() {
     const [statistics, setStatistics] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [dataOrder, setDataOrder] = useState({ totalOrders: 0, totalRevenue: 0 });
+    const [newUser, setNewUser] = useState();
 
     const fetchStatistics = useCallback(async () => {
         try {
@@ -30,14 +32,37 @@ function AdminDashboard() {
             setLoading(false);
         }
     }, [token]);
+    const fetchNewUser = useCallback(async () => {
+        try {
+            const response = await authApi(token).post(endpoints.getNewUser);
+            setNewUser(response.data.data.count)
+        } catch (error) {
+            console.error("Failed to fetch user:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, [token]);
+
+    const fetchDataOrder = useCallback(async () => {
+        try {
+            const response = await authApi(token).post(endpoints.statisticOrder);
+            setDataOrder(response.data.data);
+        } catch (error) {
+            console.error("Failed to fetch order statistics:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, [token]);
 
     useEffect(() => {
         if (!user) {
             router.push('/admin/login');
         } else {
             fetchStatistics();
+            fetchDataOrder();
+            fetchNewUser();
         }
-    }, [user, router, fetchStatistics]);
+    }, [user, router, fetchStatistics, fetchDataOrder, fetchNewUser]);
 
     const getStatisticsData = () => {
         if (!statistics) return {};
@@ -115,17 +140,18 @@ function AdminDashboard() {
             <div className="flex bg-gray-100 min-h-screen">
                 <div className="flex-1 flex flex-col ml-64">
                     <main className="flex-1 p-6">
-                        <h1>{user.username}</h1>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {['Tổng đơn hàng', 'Doanh thu', 'Khách hàng mới'].map((title, index) => (
-                                <div key={index} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
-                                    <h3 className="text-lg font-semibold text-gray-800 mb-2">{title}</h3>
-                                    <p className="text-3xl font-bold text-orange-500">
-                                        {index === 0 ? '1,234' : index === 1 ? '$12,345' : '56'}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {['Tổng đơn hàng', 'Doanh thu', 'Khách hàng mới'].map((title, index) => (
+                            <div key={index} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
+                                <h3 className="text-lg font-semibold text-gray-800 mb-2">{title}</h3>
+                                <p className="text-3xl font-bold text-orange-500">
+                                    {index === 0 ? dataOrder.totalOrders
+                                     : index === 1 ? `$${dataOrder.totalRevenue.toLocaleString()}`
+                                     : newUser || '0'} {/* Hiển thị số lượng khách hàng mới */}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
                         {statistics && (
                             <div className="mt-6">
                                 <h2 className="text-2xl font-bold mb-4">Statistics</h2>
