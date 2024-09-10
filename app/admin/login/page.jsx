@@ -9,46 +9,58 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../../store/authSlice';
 import Cookies from 'js-cookie';
+import Loading from '@/components/Loading'
 
 export default function AdminLogin() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false);
     const dispatch = useDispatch();
    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+        setIsLoading(true);
         try {
             const response = await API.post(endpoints.login, {
-                username: "admin22",
-                password: "12345678"
-                // username: username,
-                // password: password
+                // username: "admin22",
+                // password: "12345678"
+                username: username,
+                password: password
             });    
             const token = response.data.data.accessToken;
-            Cookies.set('token', token, { expires: 1 }); // Set cookie to expire in 1 day
+          
 
             const userResponse = await authApi(token).get(endpoints.currentUser);
             console.log(userResponse.data);
-    
+            const user = userResponse.data.data;
+
+            if (user.roleName === 'CUSTOMER') {
+                toast.error('You do not have permission to access the admin page');
+                return;
+            }
+            Cookies.set('token', token, { expires: 1 }); // Set cookie to expire in 1 day
             dispatch(loginSuccess({
                 user: userResponse.data.data,
                 token: token
             }));
     
-            toast.success('Login successful!');
+            // toast.success('Login successful!');
             localStorage.setItem('token', response.data.token);
-localStorage.setItem('user', JSON.stringify(response.data.user));
+            localStorage.setItem('user', JSON.stringify(response.data.user));
             setTimeout(() => {
                 router.push('/admin/dashboard');
             }, 1000);
         } catch (error) {
+            setIsLoading(false);
             console.error('Login failed:', error);
             toast.error('Login failed. Please check your credentials.');
         }
     };
+    if (isLoading) {
+        return <Loading />;
+      }
     return (
         <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-orange-100 to-yellow-100">
             <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
