@@ -49,7 +49,14 @@ export default function Login() {
                 token: response.data.data.accessToken
             }));
     
-            router.push('/');
+            const previousPage = localStorage.getItem('previousPage');
+            localStorage.removeItem('previousPage'); 
+
+            if (previousPage === '/booking') {
+                router.push('/booking');
+            } else {
+                router.push('/');
+            }
         } catch (error) {
             console.error('Login failed:', error);
             toast.error('Login failed. Please check your credentials.');

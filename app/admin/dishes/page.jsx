@@ -121,7 +121,6 @@ function Dishes() {
                     </Button>
 
                     </div>
-                 
                     <DishesDrawer isOpen={isDrawerOpen} onClose={handleCloseDrawer} onCreated={handleCreated} />
                     <DetailDishesDrawer
                         isOpen={isDrawerDetailOpen}
