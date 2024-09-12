@@ -31,7 +31,7 @@ const navItems = [
     { href: '/admin/warehouse-slips', icon: <TbBrandGoogleAnalytics size={20} />, text: 'Warehouse Slips' },
     { href: '/admin/promotions', icon: <BiSolidDiscount size={20} />, text: 'Promotions' },
     { href: '/admin/feedbacks', icon: <FaReplyd size={20} />, text: 'Feedback ' },
-    { href: '/admin/statistic', icon: <TbReportAnalytics size={20} />, text: 'Statistics' },
+    { href: '/admin/statistics', icon: <TbReportAnalytics size={20} />, text: 'Statistics' },
     { href: '/admin/reservations', icon: <FaCalendarMinus size={20} />, text: 'Reservations' },
     { href: '/admin/suppliers', icon: <FaStore        size={20} />, text: 'Suppliers' },
 ];

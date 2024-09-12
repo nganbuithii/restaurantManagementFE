@@ -43,6 +43,7 @@ export const endpoints = {
     'statisticInventory':'/warehouse-slips/statistics',
     'changeStatusOrder':(id) => `/orders/${id}/change-status`,
     'chat':"/chat",
+    'statisticRevenue':"/orders/revenue-statistics",
 }
 
 // Tạo một phiên bản axios với các cài đặt đã được cung cấp

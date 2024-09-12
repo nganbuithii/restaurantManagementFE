@@ -14,14 +14,14 @@ const Step4 = ({ handlePreOrderDecision }) => {
           onClick={() => handlePreOrderDecision(true)}
           className="py-8 px-6 text-lg transition-all duration-300 bg-orange-500 hover:bg-orange-600"
         >
-          Yes, I'd like to pre-order
+          Yes, I would like to pre-order
         </Button>
         <Button
           variant="outline"
           onClick={() => handlePreOrderDecision(false)}
           className="py-8 px-6 text-lg transition-all duration-300 border-orange-500 text-orange-500 hover:bg-orange-50"
         >
-          No, I'll order at the restaurant
+          No, I will order at the restaurant
         </Button>
       </div>
     </div>

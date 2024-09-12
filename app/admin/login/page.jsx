@@ -17,7 +17,7 @@ export default function AdminLogin() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const dispatch = useDispatch();
-   
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -28,25 +28,30 @@ export default function AdminLogin() {
                 // password: "12345678"
                 username: username,
                 password: password
-            });    
+            });
             const token = response.data.data.accessToken;
-          
+
 
             const userResponse = await authApi(token).get(endpoints.currentUser);
-            console.log(userResponse.data);
+            console.log("DATAAAAAAA", userResponse.data);
+            console.log("ROLE", userResponse.data.data.roleName)
             const user = userResponse.data.data;
 
-            if (user.roleName === 'CUSTOMER') {
-                toast.error('You do not have permission to access the admin page');
+            if (userResponse.data.data.roleName === 'CUSTOMER') {
+                console.log("Chặn");
+                setIsLoading(false);
+
+                toast.error('You do not have permission to access the admin page', { containerId: 'A' });
                 return;
             }
-            Cookies.set('token', token, { expires: 1 }); // Set cookie to expire in 1 day
+
+
+            Cookies.set('token', token, { expires: 1 }); 
             dispatch(loginSuccess({
                 user: userResponse.data.data,
                 token: token
             }));
-    
-            // toast.success('Login successful!');
+
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data.user));
             setTimeout(() => {
@@ -60,7 +65,7 @@ export default function AdminLogin() {
     };
     if (isLoading) {
         return <Loading />;
-      }
+    }
     return (
         <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-orange-100 to-yellow-100">
             <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
@@ -102,7 +107,7 @@ export default function AdminLogin() {
                     </button>
                 </form>
             </div>
-            <ToastContainer position="top-right" autoClose={3000} />
+            <ToastContainer position="top-right" autoClose={3000} containerId={'A'} />
         </div>
     );
 }
