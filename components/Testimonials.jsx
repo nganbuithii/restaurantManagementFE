@@ -202,9 +202,8 @@ const Testimonials = () => {
         )}
 
         <form onSubmit={handleFeedbackSubmit} className="mt-16 max-w-2xl mx-auto bg-gray-800 p-8 rounded-lg shadow-xl">
-          <h3 className="text-2xl font-semibold mb-6">Leave Your Feedback</h3>
+          <h3 className="text-2xl font-semibold mb-6"> Your Feedback</h3>
           <div className="mb-6">
-            <label htmlFor="feedback" className="block text-sm font-medium mb-2">Your Feedback</label>
             <textarea
               id="feedback"
               className="w-full p-3 bg-gray-700 text-white rounded-md shadow-inner focus:ring-2 focus:ring-blue-400 focus:outline-none transition duration-200"
@@ -223,7 +222,7 @@ const Testimonials = () => {
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md shadow hover:bg-blue-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-gradient-to-r from-yellow-500 to-orange-600 text-white py-2 px-4 rounded-md shadow hover:bg-orange-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
@@ -261,7 +260,7 @@ const Testimonials = () => {
                   />
                   <button
                     type="submit"
-                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md shadow hover:bg-blue-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-gradient-to-r from-yellow-500 to-orange-600 text-white py-2 px-4 rounded-md shadow hover:bg-orange-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? 'Submitting...' : 'Submit Reply'}

@@ -9,6 +9,7 @@ import dynamic from "next/dynamic";
 import FeaturedDishes from '@/components/FeaturedDishes'
 import Testimonials from '@/components/Testimonials'
 import ChefShowcase from '@/components/ChefShowcase'
+import ChatSupport  from '@/components/ChatSupport'
 function Home() {
     const user = useSelector((state) => state.auth.user);
     console.log("User:", user);
@@ -61,6 +62,7 @@ function Home() {
 
                     {/* Testimonials */}
                     <Testimonials />
+                    <ChatSupport />
                 </main>
                 <Footer />
             </div>
