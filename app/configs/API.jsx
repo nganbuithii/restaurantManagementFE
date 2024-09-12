@@ -14,6 +14,7 @@ export const endpoints = {
     'uploadAVT':'/users/upload-avt',
     'getAllDishes':'/menu-item',
     'getAllFeedbacks':'/feedbacks',
+    'replyFeedback':(id) => `feedbacks/${id}/reply`,
     'getAllMenus':'/menu',
     'getMenuById':(id) => `/menu/${id}`,
     'getAllInventory':'/inventory',

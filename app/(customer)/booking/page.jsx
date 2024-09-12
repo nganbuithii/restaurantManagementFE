@@ -21,7 +21,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Search, Clock, Table, Utensils, CheckCircle, FileText } from 'lucide-react';
 import API, { authApi, endpoints } from '@/app/configs/API';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Step1 from "./Step1"
 import Step2 from "./Step2"
 import Step3 from "./Step3"
@@ -29,6 +29,7 @@ import Step4 from "./Step4"
 import Step5 from "./Step5"
 import Step6 from "./Step6"
 import { useRouter } from 'next/navigation';
+import { setBookingInfo } from '@/app/store/bookingSlice';
 
 const timeSlots = [
     '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
@@ -37,6 +38,7 @@ const timeSlots = [
 
 function ModernBookingTable() {
     const router = useRouter();
+    const dispatch = useDispatch();
     const [date, setDate] = useState(new Date());
     const [selectedTime, setSelectedTime] = useState('');
     const [selectedTable, setSelectedTable] = useState(null);
@@ -208,10 +210,20 @@ function ModernBookingTable() {
             console.log("Sending reservation data:", reservationData);
             const response = await authApi(token).post(endpoints.getAllReservations, reservationData);
             console.log("Booking table success:", response.data);
-            toast.success("Booking reservation successfully", { containerId: 'A' });
-
+        
             // Tính tổng tiền
             const totalAmount = calculateTotalAmount();
+            dispatch(setBookingInfo({
+                date: format(date, 'MMMM d, yyyy'),
+                time: selectedTime,
+                table: selectedTable,
+                preOrderItems: wantToPreOrder ? selectedItems.map(id => {
+                    const dish = dishes.find(d => d.id === id);
+                    return { id: dish.id, name: dish.name, price: dish.price };
+                }) : [],
+                totalAmount: totalAmount
+            }));
+            toast.success("Booking reservation successfully", { containerId: 'A' });
             setTimeout(() => {
                 if (totalAmount > 0) {
                     router.push('/payment');
@@ -227,9 +239,11 @@ function ModernBookingTable() {
                 });
             } else {
                 toast.error('Error booking reservation', { containerId: 'A' });
+                console.log(error)
             }
+
             setTimeout(() => {
-                router.push('/booking');
+                // router.push('/');
             }, 3000);
         }
     }
