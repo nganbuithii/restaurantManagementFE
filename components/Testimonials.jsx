@@ -52,6 +52,9 @@ const Testimonials = () => {
       toast.success('Feedback submitted successfully', { containerId: 'A' });
       await fetchFeedbacks(currentPage);
       setNewFeedback({ content: '', rating: 0 });
+
+
+      
     } catch (error) {
       console.error('Failed to submit feedback:', error);
       toast.error('Failed to submit feedback. Please try again!', { containerId: 'A' });

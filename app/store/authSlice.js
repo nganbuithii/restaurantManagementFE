@@ -4,6 +4,7 @@ const initialState = {
     user: null,
     token: null,
     isAuthenticated: false,
+    permissions: [], 
 };
 
 const authSlice = createSlice({
@@ -14,11 +15,13 @@ const authSlice = createSlice({
             state.user = action.payload.user;
             state.token = action.payload.token;
             state.isAuthenticated = true;
+            state.permissions = action.payload.permissions || [];
         },
         logout(state) {
             state.user = null;
             state.token = null;
             state.isAuthenticated = false;
+            state.permissions = [];
         },
         updateUser(state, action) {
             state.user = {
@@ -26,8 +29,12 @@ const authSlice = createSlice({
                 ...action.payload,
             };
         },
+        updateRolePermissions(state, action) {
+            const updatedPermissions = action.payload.permissions;  
+            state.permissions = updatedPermissions;
+        },
     },
 });
 
-export const { loginSuccess, logout, updateUser } = authSlice.actions;
+export const { loginSuccess, logout, updateUser, updateRolePermissions } = authSlice.actions;
 export default authSlice.reducer;

@@ -2,7 +2,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './authSlice'; 
 import bookingReducer from './bookingSlice'
-
+import notificationReducer from './NotificationSlice'
 // Lấy trạng thái từ localStorage
 const loadState = () => {
     try {
@@ -28,6 +28,7 @@ const store = configureStore({
     reducer: {
         auth: authReducer,
         booking:bookingReducer,
+        notifications:notificationReducer
     },
     preloadedState: loadState(),
 });

@@ -16,8 +16,15 @@ import 'react-toastify/dist/ReactToastify.css';
 import { MdDelete } from "react-icons/md";
 import DeleteConfirmationDialog from "@/components/DeleteConfirmationDialog";
 import DetailDrawerSupplier from './DetailDrawerSupplier'
-
+import { checkPermission } from '@/utils/permissionUtils';
+import Image from "next/image";
 function Supplier() {
+    const permissions = useSelector(state => state.auth.permissions);
+    const canViewSuppliers = checkPermission(permissions, 'Suppliers', 'GET');
+    const canCreateSuppliers = checkPermission(permissions, 'Suppliers', 'POST');
+    const canUpdateSuppliers = checkPermission(permissions, 'Suppliers', 'UPDATE');
+    const canDeleteSuppliers = checkPermission(permissions, 'Suppliers', 'DELETE');
+
     const labels = ["Home", "Management Supplier"];
     const links = ["/admin/dashboard", "/admin/suppliers"];
     const [suppliers, setSuppliers] = useState([]);
@@ -66,7 +73,7 @@ function Supplier() {
         try {
             const response = await authApi(token).get(endpoints.getAllSupliers, {
                 params: {
-                    page: currentPage,search: debouncedSearchQuery,
+                    page: currentPage, search: debouncedSearchQuery,
                 }
             });
             console.log("GET SUPPLIERS SUCCESS");
@@ -80,7 +87,7 @@ function Supplier() {
         } catch (error) {
             console.error("Failed to fetch suppliers:", error);
         }
-    }, [currentPage,debouncedSearchQuery,token]);
+    }, [currentPage, debouncedSearchQuery, token]);
 
     useEffect(() => {
         fetchSuppliers();
@@ -126,33 +133,43 @@ function Supplier() {
                 <HeaderAdmin />
                 <main className="ml-64 flex-1 p-6 bg-gray-100">
                     <Breadcrumbs labels={labels} links={links} />
-                    <div className=" rounded-lg p-6 mb-6">
-                        <div className="flex justify-between items-center mb-6">
+                    <div className=" rounded-lg px-6 py-3">
+                        <div className="flex justify-between items-center ">
                             <h1 className="text-3xl font-bold text-gray-800">
-                                Ingredients Management
+                                Supplier Management
                             </h1>
-                        
+                            {canViewSuppliers ? (
+                                <div className="flex flex-col md:flex-row justify-between items-stretch space-y-2 md:space-y-0 md:space-x-4">
+                                    <div className="relative flex-grow">
+                                        <input
+                                            type="text"
+                                            placeholder="Search Suppliers..."
+                                            className="border border-gray-300 p-2 pl-10 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out"
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                        />
+                                        <FaSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" />
+                                    </div>
+                                    {canCreateSuppliers &&
+                                        <Button
+                                            onClick={handleOpenDrawer}
+                                            className="bg-gradient-to-r from-yellow-500 to-orange-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out flex items-center"
+                                        >
+                                            <FaPlus className="mr-2" /> Add New Supplier
+                                        </Button>
+                                    }
+                                </div>) :
+                                (
+                                    <div className="flex flex-col items-center justify-center h-full bg-white rounded-xl shadow-lg p-8">
+                                        <Image src="/images/permission-deny.avif" alt="Permission Denied" width={200} height={200} className="mb-6" />
+                                        <h1 className="text-3xl font-bold text-red-600 mb-4">Access Denied</h1>
+                                        <p className="text-gray-600 text-lg text-center">You do not have permission to view the user management page.</p>
+                                    </div>
+                                )}
                         </div>
-                        <div className="flex flex-col md:flex-row justify-between items-stretch space-y-4 md:space-y-0 md:space-x-4">
-                            <div className="relative flex-grow">
-                                <input
-                                    type="text"
-                                    placeholder="Search ingredients..."
-                                    className="border border-gray-300 p-2 pl-10 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                />
-                                <FaSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" />
-                            </div>
-                            <Button
-                                onClick={handleOpenDrawer}
-                                className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out flex items-center"
-                            >
-                                <FaPlus className="mr-2" /> Add New Supplier
-                            </Button>
-                        </div>
+
                     </div>
-            
+
                     <SupplierDrawer isOpen={isDrawerOpen} onClose={handleCloseDrawer} onCreated={handleCreated} />
                     <DetailDrawerSupplier
                         isOpen={isDrawerDetailOpen}
@@ -182,25 +199,27 @@ function Supplier() {
                                         <td className="p-4 border-b border-gray-300">{supplier.address}</td>
                                         <td className="p-4 border-b border-gray-300">{supplier.email}</td>
                                         <td className="p-4 border-b border-gray-300">
-                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${supplier.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${supplier.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                                                 }`}>
                                                 {supplier.isActive ? 'Active' : 'Inactive'}
                                             </span>
                                         </td>
-                                    
+
                                         <td className="p-4 border-b border-gray-300">
-                                            <button   onClick={() => handleOpenDetail(supplier.id)} className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150">
+                                            <button onClick={() => handleOpenDetail(supplier.id)} className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150">
                                                 <FaEye className="text-blue-400 text-lg" />
                                             </button>
-                                            <button onClick={() => handleOpenDetail(supplier.id)}  className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150">
-                                                <FaEdit />
-                                            </button>
-                                            <button
-                                                className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150"
-                                                onClick={() => handleOpenDeleteDialog(supplier.id)}
-                                            >
-                                                <MdDelete className="text-orange-500 text-lg" />
-                                            </button>
+                                            {canUpdateSuppliers &&
+                                                <button onClick={() => handleOpenDetail(supplier.id)} className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150">
+                                                    <FaEdit />
+                                                </button>}
+                                            {canDeleteSuppliers &&
+                                                <button
+                                                    className="text-blue-600 hover:bg-blue-100 rounded px-4 py-2 transition duration-150"
+                                                    onClick={() => handleOpenDeleteDialog(supplier.id)}
+                                                >
+                                                    <MdDelete className="text-orange-500 text-lg" />
+                                                </button>}
                                         </td>
                                     </tr>
                                 ))}

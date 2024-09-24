@@ -116,7 +116,7 @@ function WarehouseSlips() {
                         <h1 className="text-4xl font-extrabold text-gray-900">
                             Management Warehouse Slips
                         </h1>
-                        <Button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md" onClick={handleOpenDrawer}>
+                        <Button className="bg-gradient-to-r from-yellow-500 to-orange-600    text-white font-semibold py-2 px-4 rounded-lg shadow-md" onClick={handleOpenDrawer}>
                             Add New Slip
                         </Button>
                     

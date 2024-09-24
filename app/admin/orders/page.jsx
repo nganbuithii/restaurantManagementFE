@@ -112,8 +112,7 @@ function Orders() {
                         <h1 className="text-4xl font-extrabold text-gray-900">
                             Management Orders
                         </h1>
-                    </div>
-                    <div className="flex justify-between items-center mb-4">
+                        <div className="flex justify-between items-center mb-4">
                         <Select onValueChange={(value) => setSelectedStatus(value)}>
                             <SelectTrigger className="w-[180px] bg-white border border-gray-300 rounded-lg shadow-sm">
                                 <SelectValue placeholder="Filter by Status" />
@@ -129,6 +128,7 @@ function Orders() {
                             </SelectContent>
                         </Select>
                     </div>
+                    </div>
                     <DetailOrderDrawer
                         isOpen={isDrawerDetailOpen}
                         onClose={handleCloseDetail}
@@ -137,7 +137,7 @@ function Orders() {
 
                     <div className="bg-white rounded-lg shadow-lg overflow-hidden mt-4">
                         <table className="w-full text-left border-separate border-spacing-0">
-                            <thead className="bg-gray-200 text-gray-700">
+                            <thead className="bg-gray-200 bg-gradient-to-r from-yellow-500 to-orange-600 text-white">
                                 <tr>
                                     <th className="p-4 border-b border-gray-300">Order ID</th>
                                     <th className="p-4 border-b border-gray-300">Total Price</th>

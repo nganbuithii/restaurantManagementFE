@@ -9,11 +9,13 @@ import { Chart, ArcElement, registerables } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
 import { useCallback, useEffect, useState } from "react";
 import { authApi, endpoints } from "@/app/configs/API";
+import StatisticsFeedback from './statisticsFeedback'
 Chart.register(ArcElement, ...registerables);
 
 function AdminDashboard() {
     const user = useSelector((state) => state.auth.user);
     const token = useSelector((state) => state.auth.token);
+    const permissions = useSelector((state) => state.auth.permissions);
     const router = useRouter();
     const [statistics, setStatistics] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -129,7 +131,7 @@ function AdminDashboard() {
     const { warehouseData, ingredientData } = getStatisticsData();
 
     if (!user) {
-        return null; // or return a loading indicator
+        return null;
     }
 
     return (
@@ -140,18 +142,29 @@ function AdminDashboard() {
             <div className="flex bg-gray-100 min-h-screen">
                 <div className="flex-1 flex flex-col ml-64">
                     <main className="flex-1 p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {['Tổng đơn hàng', 'Doanh thu', 'Khách hàng mới'].map((title, index) => (
-                            <div key={index} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
-                                <h3 className="text-lg font-semibold text-gray-800 mb-2">{title}</h3>
-                                <p className="text-3xl font-bold text-orange-500">
-                                    {index === 0 ? dataOrder.totalOrders
-                                     : index === 1 ? `$${dataOrder.totalRevenue.toLocaleString()}`
-                                     : newUser || '0'} {/* Hiển thị số lượng khách hàng mới */}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
+                        {/* <h2>Permissions:</h2>
+                        <ul>
+                            {permissions.map((permission) => (
+                                <li key={permission.id}>
+                                    <strong>API Path:</strong> {permission.apiPath} <br />
+                                    <strong>Method:</strong> {permission.method} <br />
+                                    <strong>Module:</strong> {permission.module}
+                                </li>
+                            ))}
+                        </ul> */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {['Tổng đơn hàng', 'Doanh thu', 'Khách hàng mới'].map((title, index) => (
+                                <div key={index} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
+                                    <h3 className="text-lg font-semibold text-gray-800 mb-2">{title}</h3>
+                                    <p className="text-3xl font-bold text-orange-500">
+                                        {index === 0 ? dataOrder.totalOrders
+                                            : index === 1 ? `$${dataOrder.totalRevenue.toLocaleString()}`
+                                                : newUser || '0'} {/* Hiển thị số lượng khách hàng mới */}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                        <StatisticsFeedback/>
                         {statistics && (
                             <div className="mt-6">
                                 <h2 className="text-2xl font-bold mb-4">Statistics</h2>

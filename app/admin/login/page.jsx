@@ -36,7 +36,9 @@ export default function AdminLogin() {
             console.log("DATAAAAAAA", userResponse.data);
             console.log("ROLE", userResponse.data.data.roleName)
             const user = userResponse.data.data;
-
+            const roleId = userResponse.data.data.roleId;
+            const roleResponse = await authApi(token).get(endpoints.getRoleById(roleId));
+            const dataPermission = roleResponse.data.data.permissions;
             if (userResponse.data.data.roleName === 'CUSTOMER') {
                 console.log("Chặn");
                 setIsLoading(false);
@@ -46,10 +48,11 @@ export default function AdminLogin() {
             }
 
 
-            Cookies.set('token', token, { expires: 1 }); 
+            Cookies.set('token', token, { expires: 30 }); 
             dispatch(loginSuccess({
                 user: userResponse.data.data,
-                token: token
+                token: token,
+                permissions: dataPermission 
             }));
 
             localStorage.setItem('token', response.data.token);

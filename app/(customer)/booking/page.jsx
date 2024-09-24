@@ -17,9 +17,6 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Search, Clock, Table, Utensils, CheckCircle, FileText } from 'lucide-react';
 import API, { authApi, endpoints } from '@/app/configs/API';
 import { useDispatch, useSelector } from 'react-redux';
 import Step1 from "./Step1"
@@ -51,7 +48,7 @@ function ModernBookingTable() {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const token = useSelector((state) => state.auth.token);
-
+    const [selectedDishes, setSelectedDishes] = useState({ selectedItems: [], quantities: {} });
 
     const availableDates = Array.from({ length: 14 }, (_, i) => addDays(new Date(), i));
 
@@ -93,7 +90,7 @@ function ModernBookingTable() {
             const total = response.data.data.total;
             const itemsPerPage = response.data.data.itemsPerPage;
             setTotalPages(Math.ceil(total / itemsPerPage));
-            
+
         } catch (error) {
             console.error("Failed to fetch dishes:", error);
         }
@@ -137,6 +134,8 @@ function ModernBookingTable() {
                         setSelectedTable={setSelectedTable}
                         setStep={setStep}
                         renderTableShape={renderTableShape}
+                        date={date}
+                        time={selectedTime}
                     />
                 );
             case 4:
@@ -145,27 +144,28 @@ function ModernBookingTable() {
                         handlePreOrderDecision={handlePreOrderDecision}
                     />
                 );
-                case 5:
-                    return (
-                        <Step5
-                            searchTerm={searchTerm}
-                            setSearchTerm={setSearchTerm}
-                            dishes={dishes}
-                            selectedItems={selectedItems}
-                            handleMenuItemToggle={handleMenuItemToggle}
-                        />
-                    );
-                case 6:
-                    return (
-                        <Step6
-                            date={date}
-                            selectedTime={selectedTime}
-                            selectedTable={selectedTable}
-                            wantToPreOrder={wantToPreOrder}
-                            selectedItems={selectedItems}
-                            dishes={dishes}
-                        />
-                    );
+            case 5:
+                return (
+                    <Step5
+                        searchTerm={searchTerm}
+                        setSearchTerm={setSearchTerm}
+                        dishes={dishes}
+                        selectedItems={selectedDishes.selectedItems}
+                        setSelectedDishes={setSelectedDishes}
+                    />
+                );
+            case 6:
+                return (
+                    <Step6
+                        date={date}
+                        selectedTime={selectedTime}
+                        selectedTable={selectedTable}
+                        wantToPreOrder={wantToPreOrder}
+                        selectedItems={selectedDishes.selectedItems}
+                        dishes={dishes}
+                        quantities={selectedDishes.quantities}
+                    />
+                );
             default:
                 return null;
         }
@@ -189,41 +189,60 @@ function ModernBookingTable() {
         }
     };
     const calculateTotalAmount = () => {
-        return selectedItems.reduce((total, itemId) => {
+        return selectedDishes.selectedItems.reduce((total, itemId) => {
             const dish = dishes.find(d => d.id === itemId);
-            return total + (dish ? dish.price : 0);
+            const quantity = selectedDishes.quantities[itemId] || 1; // Lấy số lượng từ selectedDishes
+            return total + (dish ? dish.price * quantity : 0);
         }, 0);
     };
 
     const handConfirm = async () => {
         const reservationData = {
-            tableId: selectedTable?.id,
+            tableId: selectedTable.id,
             time: selectedTime,
             date: format(date, 'yyyy-MM-dd'),
         };
-    
         if (wantToPreOrder) {
-            reservationData.menuItemIds = selectedItems;
+            reservationData.menuItemIds = selectedDishes.selectedItems;
         }
-    
+        console.log("BÀN",selectedTable )
         try {
-            console.log("Sending reservation data:", reservationData);
+            console.log("Gửi dữ liệu đặt chỗ:", reservationData);
             const response = await authApi(token).post(endpoints.getAllReservations, reservationData);
-            console.log("Booking table success:", response.data);
-        
+            console.log("Đặt bàn thành công:", response.data);
+
+            const orderData = {
+                status: "PENDING",
+                discountPrice: 0,
+                details: selectedDishes.selectedItems.map(itemId => ({
+                    menuItemId: itemId,
+                    quantity: selectedDishes.quantities[itemId] || 1
+                }))
+            };
+
+            const orderResponse = await authApi(token).post(endpoints.getAllOrders, orderData);
+            console.log("Tạo đơn hàng thành công:", orderResponse.data.data);
+
+            const orderId = orderResponse.data.data.id;
+
             // Tính tổng tiền
             const totalAmount = calculateTotalAmount();
+
             dispatch(setBookingInfo({
+                id: response.data.data.id,
                 date: format(date, 'MMMM d, yyyy'),
                 time: selectedTime,
                 table: selectedTable,
-                preOrderItems: wantToPreOrder ? selectedItems.map(id => {
+                preOrderItems: wantToPreOrder ? selectedDishes.selectedItems.map(id => {
                     const dish = dishes.find(d => d.id === id);
-                    return { id: dish.id, name: dish.name, price: dish.price };
+                    return { id: dish.id, name: dish.name, price: dish.price, quantity: selectedDishes.quantities[id] || 1 };
                 }) : [],
-                totalAmount: totalAmount
+                totalAmount: totalAmount,
+                orderId: orderId
             }));
-            toast.success("Booking reservation successfully", { containerId: 'A' });
+
+            toast.success("Đặt bàn thành công", { containerId: 'A' });
+
             setTimeout(() => {
                 if (totalAmount > 0) {
                     router.push('/payment');
@@ -234,50 +253,52 @@ function ModernBookingTable() {
 
         } catch (error) {
             if (error.response && error.response.data) {
-                toast.error(` ${error.response.data.message || 'No detail error'}`, {
+                toast.error(` ${error.response.data.message || 'Lỗi chi tiết không có'}`, {
                     containerId: 'A'
                 });
             } else {
-                toast.error('Error booking reservation', { containerId: 'A' });
+                toast.error('Lỗi khi đặt chỗ', { containerId: 'A' });
                 console.log(error)
             }
 
             setTimeout(() => {
-                // router.push('/');
+                // router.push('/'); // Điều hướng về trang chính trong trường hợp lỗi
             }, 3000);
         }
     }
-    
+
+
 
     return (
         <>
             <Header bgColor="bg-orange-500" />
             <div className="min-h-screen bg-gradient-to-br from-orange-100 via-orange-200 to-orange-300 pt-28 pb-12">
                 <Card className="max-w-4xl mx-auto shadow-2xl">
-                    <CardHeader className="bg-orange-500 text-white rounded-t-lg">
+                    {/* <CardHeader className="bg-orange-500 text-white rounded-t-lg">
                         <CardTitle className="text-3xl font-bold text-center">Book Your Table</CardTitle>
                         <CardDescription className="text-center text-orange-100">
                             Follow the steps to reserve your perfect dining experience
                         </CardDescription>
-                    </CardHeader>
+                    </CardHeader> */}
                     <CardContent className="p-6">
                         {renderStepContent()}
                     </CardContent>
                     <CardFooter className="flex justify-between bg-gray-50 rounded-b-lg">
-                        {step > 1 && step !== 6 && (
+                        {step > 1 && (
                             <Button variant="outline" onClick={() => setStep(step - 1)} className="border-orange-500 text-orange-500 hover:bg-orange-50">
                                 Back
                             </Button>
                         )}
-                        {step < 6 ? (
+                        {step > 1 && step < 6 && (
                             <Button
                                 onClick={() => setStep(step + 1)}
-                                disabled={(step === 1 && !date) || (step === 2 && !selectedTime) || (step === 3 && !selectedTable) || (step === 4 && wantToPreOrder === null)}
+                                disabled={(step === 2 && !selectedTime) || (step === 3 && !selectedTable) || (step === 4 && wantToPreOrder === null)}
                                 className="bg-orange-500 hover:bg-orange-600 text-white"
                             >
                                 {step === 5 ? "Finish Pre-order" : "Continue"}
                             </Button>
-                        ) : (
+                        )}
+                        {step === 6 && (
                             <Button onClick={() => handConfirm()} className="bg-green-500 hover:bg-green-600 text-white">
                                 Confirm Booking
                             </Button>

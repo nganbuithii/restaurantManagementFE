@@ -15,6 +15,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { GoogleLogin } from '@react-oauth/google';
 
 export default function Login() {
     const { register, handleSubmit, formState: { errors } } = useForm();
@@ -22,7 +23,6 @@ export default function Login() {
     const router = useRouter();
     const dispatch = useDispatch();
 
-    // State for forgot password modal
     const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
     const [forgotPasswordStep, setForgotPasswordStep] = useState(1);
     const [email, setEmail] = useState('');
@@ -38,19 +38,22 @@ export default function Login() {
             const response = await API.post(endpoints.login, {
                 username: data.username,
                 password: data.password
-            });    
+            });
             localStorage.setItem('token', response.data.data.accessToken);
-    
+
             const userResponse = await authApi(response.data.data.accessToken).get(endpoints.currentUser);
             console.log(userResponse.data)
-    
+            if (userResponse.data.data.roleName !== 'CUSTOMER') {
+                toast.error('Your account is invalid');
+                return;
+            }
             dispatch(loginSuccess({
                 user: userResponse.data.data,
                 token: response.data.data.accessToken
             }));
-    
+
             const previousPage = localStorage.getItem('previousPage');
-            localStorage.removeItem('previousPage'); 
+            localStorage.removeItem('previousPage');
 
             if (previousPage === '/booking') {
                 router.push('/booking');
@@ -60,6 +63,33 @@ export default function Login() {
         } catch (error) {
             console.error('Login failed:', error);
             toast.error('Login failed. Please check your credentials.');
+        }
+    };
+    const handleGoogleSuccess = async (credentialResponse) => {
+        try {
+            console.log('Google login initiated', credentialResponse);
+            const response = await API.post(endpoints.googleLogin, {
+                credential: credentialResponse.credential
+            });
+            console.log('Backend response:', response);
+            if (response.data && response.data.data.accessToken) {
+                localStorage.setItem('token', response.data.data.accessToken)
+                const userResponse = await authApi(response.data.data.accessToken).get(endpoints.currentUser);           
+                console.log('User data:', userResponse.data);
+    
+                dispatch(loginSuccess({
+                    user: userResponse.data.data,
+                    token: response.data.data.accessToken
+                }));
+    
+                router.push('/');
+            } else {
+                console.error('Unexpected response structure:', response);
+                toast.error('Google login failed. Please try again.');
+            }
+        } catch (error) {
+            console.error('Google login failed:', error.response || error);
+            toast.error('Google login failed. Please try again.');
         }
     };
 
@@ -145,9 +175,9 @@ export default function Login() {
                     </div>
 
                     <p className="text-sm text-gray-600 mt-4 text-right font-bold">
-                        <button 
-                            type="button" 
-                            onClick={() => setIsForgotPasswordOpen(true)} 
+                        <button
+                            type="button"
+                            onClick={() => setIsForgotPasswordOpen(true)}
                             className="text-orange-700 hover:text-red-700 transition duration-200"
                         >
                             Forgot password?
@@ -174,8 +204,21 @@ export default function Login() {
 
                     <div className='flex items-center justify-center mt-5 mb-3'>
                         <div className='flex flex-row space-x-4'>
-                            <Image alt='gg' src="/images/gg.png" width={50} height={50} />
-                            <Image alt='fb' src="/images/fb.png" width={50} height={50} />
+                            <div className='flex items-center justify-center mt-5 mb-3'>
+                                <div className='flex flex-row space-x-4'>
+                                    <GoogleLogin
+                                        onSuccess={handleGoogleSuccess}
+                                        onError={() => {
+                                            console.log('Login Failed');
+                                            toast.error('Google login failed. Please try again.');
+                                        }}
+                                        useOneTap
+                                        clientId={process.env.GOOGLE_CLIENT_ID}
+                                    />
+                                    {/* <Image alt='fb' src="/images/fb.png" width={50} height={50} /> */}
+                                </div>
+                            </div>
+                            {/* <Image alt='fb' src="/images/fb.png" width={50} height={50} /> */}
                         </div>
                     </div>
 
@@ -192,33 +235,33 @@ export default function Login() {
                         <div className="space-y-4">
                             <div className="flex items-center space-x-2">
                                 <FaEnvelope className="text-gray-400" />
-                                <Input 
-                                    type="email" 
-                                    placeholder="Enter your email" 
-                                    value={email} 
-                                    onChange={(e) => setEmail(e.target.value)} 
+                                <Input
+                                    type="email"
+                                    placeholder="Enter your email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                 />
                             </div>
                         </div>
                     )}
                     {forgotPasswordStep === 2 && (
                         <div className="space-y-4">
-                            <Input 
-                                type="text" 
-                                placeholder="Enter OTP" 
-                                value={otp} 
-                                onChange={(e) => setOtp(e.target.value)} 
+                            <Input
+                                type="text"
+                                placeholder="Enter OTP"
+                                value={otp}
+                                onChange={(e) => setOtp(e.target.value)}
                             />
-                            <Input 
-                                type="password" 
-                                placeholder="Enter new password" 
-                                value={newPassword} 
-                                onChange={(e) => setNewPassword(e.target.value)} 
+                            <Input
+                                type="password"
+                                placeholder="Enter new password"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
                             />
                         </div>
                     )}
                     <DialogFooter>
-                    <Button 
+                        <Button
                             onClick={handleForgotPassword}
                             className="bg-gradient-to-r from-orange-400 to-orange-500 
                                     hover:from-orange-500 hover:to-orange-600 

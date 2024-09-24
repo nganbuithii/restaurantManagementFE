@@ -1,5 +1,5 @@
-'use client'
-import React, { useState } from 'react';
+'use client';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from 'next/image';
@@ -9,11 +9,14 @@ import Footer from '@/components/footer';
 import Loading from '@/components/Loading';
 import { useSelector } from 'react-redux';
 import dynamic from "next/dynamic";
+import API, { authApi, endpoints } from '@/app/configs/API';
 
 const PaymentPage = () => {
+    const token = useSelector((state) => state.auth.token);
     const router = useRouter();
     const bookingInfo = useSelector((state) => state.booking);
     const [selectedPayment, setSelectedPayment] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     const paymentMethods = [
         { id: 'visa', src: '/images/payment-1.png', alt: 'Visa' },
@@ -22,32 +25,79 @@ const PaymentPage = () => {
         { id: 'amex', src: '/images/payment-4.png', alt: 'American Express' },
     ];
 
+    console.log("BOOKING ID", bookingInfo.id)
+    // const handleVnpayReturn = useCallback(async (query) => {
+    //     try {
+    //         const vnp_ResponseCode = query.vnp_ResponseCode;
+    //         const vnp_TxnRef = query.vnp_TxnRef;
+    //         const vnp_PayDate = query.vnp_PayDate;
+    //         const vnp_TransactionStatus = query.vnp_TransactionStatus;
+
+    //         const paymentData = {
+    //             vnp_ResponseCode,
+    //             vnp_TxnRef,
+    //             vnp_PayDate,
+    //             vnp_TransactionStatus
+    //         };
+    //         await authApi(token).post(endpoints.vnpay_return, paymentData);
+
+
+    //     } catch (error) {
+    //         console.error("Lỗi", error);
+    //         alert('Đã xảy ra lỗi khi xử lý thanh toán');
+    //         router.push('/payment-failed');
+    //     }
+    // }, [token, router]);
+
+    // useEffect(() => {
+    //     const url = endpoints.getReservationById(bookingInfo.id);
+    //     console.log("URLLL", url)
+    //     const handleQuery =async () => {
+    //         const query = new URLSearchParams(window.location.search);
+    //         const queryObj = Object.fromEntries(query);
+    //         if (queryObj.vnp_Amount && queryObj.vnp_TransactionStatus && queryObj.vnp_SecureHash) {
+    //             const vnp_TxnRef = query.vnp_TxnRef;
+    //             const response = await authApi(token).patch(endpoints.getReservationById(bookingInfo.id), {
+    //                 orderId: Number(vnp_TxnRef)
+    //             });
+    //             console.log("RESPONSE",response.data.data)
+    //             handleVnpayReturn(queryObj);
+    //         }
+    //     };
+
+    //     handleQuery();
+    // }, [handleVnpayReturn]);
+
     if (!bookingInfo.date) return <Loading />;
+
     const handlePayment = async () => {
         if (!selectedPayment) {
             alert('Please select a payment method');
             return;
         }
-    
-            try {
-                const response = await fetch(`http://localhost:3005/payment/create_payment_url?orderId=${bookingInfo.orderId}&amount=${bookingInfo.totalAmount}`); // Thay đổi URL nếu cần
-                const data = await response.json();
-                const paymentUrl = data.paymentUrl;
-    
-                // Redirect to VNPay payment URL
-                if (data.paymentUrl) {
-                    window.location.href = paymentUrl; 
-                } else {
-                    alert('Failed to get payment URL from server');
-                }
-            } catch (error) {
-                console.log("error", error)
-                // alert('Error processing payment: ' + error.message);
+
+        try {
+            setIsLoading(true);
+            const paymentData = {
+                orderId: bookingInfo.orderId,
+                amount: bookingInfo.totalAmount
+            };
+            const response = await API.post(endpoints.get_vnpay, paymentData);
+            const { paymentUrl } = response.data;
+
+            if (paymentUrl) {
+                window.location.href = paymentUrl;
+            } else {
+                alert('Failed to get payment URL from server');
             }
-        
+        } catch (error) {
+            console.log("error", error);
+            alert('An error occurred while processing the payment');
+        } finally {
+            setIsLoading(false);
+        }
     };
-    
-    
+
     return (
         <>
             <Header bgColor="bg-white" />
@@ -62,11 +112,10 @@ const PaymentPage = () => {
                                     {paymentMethods.map((method) => (
                                         <div
                                             key={method.id}
-                                            className={`border rounded-lg p-4 cursor-pointer transition-all duration-200 ${
-                                                selectedPayment === method.id
-                                                    ? 'border-blue-500 shadow-md'
-                                                    : 'border-gray-200 hover:border-blue-300'
-                                            }`}
+                                            className={`border rounded-lg p-4 cursor-pointer transition-all duration-200 ${selectedPayment === method.id
+                                                ? 'border-blue-500 shadow-md'
+                                                : 'border-gray-200 hover:border-blue-300'
+                                                }`}
                                             onClick={() => setSelectedPayment(method.id)}
                                         >
                                             <Image
@@ -119,7 +168,7 @@ const PaymentPage = () => {
                                     onClick={handlePayment}
                                     className="w-full mt-8 bg-gradient-to-r from-yellow-500 to-orange-600 text-white py-3 rounded-lg text-lg font-semibold transition-colors duration-200"
                                 >
-                                    Continue to secure payment
+                                    {isLoading ? 'Processing...' : 'Continue to secure payment'}
                                 </Button>
                             </div>
                         </div>
@@ -131,4 +180,4 @@ const PaymentPage = () => {
     );
 };
 
-export default dynamic(() => Promise.resolve(PaymentPage), { ssr: false })
+export default dynamic(() => Promise.resolve(PaymentPage), { ssr: false });

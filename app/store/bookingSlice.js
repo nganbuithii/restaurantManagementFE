@@ -2,11 +2,13 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
+    id:null,
     date: null,
     time: null,
     table: null,
     preOrderItems: [],
     totalAmount: 0,
+    orderId:null,
 };
 
 const bookingSlice = createSlice({

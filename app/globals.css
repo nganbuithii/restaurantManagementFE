@@ -71,3 +71,13 @@
 /* body {
   overflow: hidden;
 } */
+/* Hide default slider arrows */
+.swiper-button-prev, .swiper-button-next,
+.slick-prev, .slick-next {
+    display: none !important;
+}
+
+/* If other icons are being rendered */
+.hero-section-arrow {
+    display: none;
+}

@@ -8,8 +8,12 @@ import { authApi, endpoints } from '@/app/configs/API';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Label } from '@/components/ui/label';
+import { checkPermission } from '@/utils/permissionUtils';
 
 export default function DetailDrawerSupplier({ isOpen, onClose, idDetail, onUpdate }) {
+    const permissions = useSelector(state => state.auth.permissions);
+    const canUpdateSuppliers = checkPermission(permissions, 'Suppliers', 'UPDATE');
+
     const [supplier, setSupplier] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [editedSupplier, setEditedSupplier] = useState(null);
@@ -80,8 +84,8 @@ export default function DetailDrawerSupplier({ isOpen, onClose, idDetail, onUpda
     return (
         <>
             <Drawer open={isOpen} onClose={onClose}>
-                <DrawerContent aria-labelledby="drawer-title" 
-                aria-describedby="drawer-description" className="bg-gradient-to-br from-orange-50 to-orange-100">
+                <DrawerContent aria-labelledby="drawer-title"
+                    aria-describedby="drawer-description" className="bg-gradient-to-br from-orange-50 to-orange-100">
                     <DrawerHeader className="border-b border-orange-200">
                         <DrawerTitle className="text-2xl font-bold text-orange-800">
                             {isEditing ? 'Edit Supplier' : 'Supplier Details'}
@@ -103,13 +107,14 @@ export default function DetailDrawerSupplier({ isOpen, onClose, idDetail, onUpda
                                         />
                                     ) : supplier.name}
                                 </h3>
+
                                 {!isEditing && (
                                     <Button onClick={handleEdit} className="bg-orange-500 text-white hover:bg-orange-600 transition duration-300">
                                         <FaEdit className="mr-2" /> Edit
                                     </Button>
                                 )}
                             </div>
-                            
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="flex items-center space-x-3">
                                     <div className="bg-orange-100 p-2 rounded-full">
@@ -130,7 +135,7 @@ export default function DetailDrawerSupplier({ isOpen, onClose, idDetail, onUpda
                                         )}
                                     </div>
                                 </div>
-                                
+
                                 <div className="flex items-center space-x-3">
                                     <div className="bg-orange-100 p-2 rounded-full">
                                         <FaMapMarkerAlt className="text-orange-600" />
@@ -149,7 +154,7 @@ export default function DetailDrawerSupplier({ isOpen, onClose, idDetail, onUpda
                                         )}
                                     </div>
                                 </div>
-                                
+
                                 <div className="flex items-center space-x-3">
                                     <div className="bg-orange-100 p-2 rounded-full">
                                         <FaToggleOn className="text-orange-600" />
@@ -171,7 +176,7 @@ export default function DetailDrawerSupplier({ isOpen, onClose, idDetail, onUpda
                                         )}
                                     </div>
                                 </div>
-                                
+
                                 <div className="flex items-center space-x-3">
                                     <div className="bg-orange-100 p-2 rounded-full">
                                         <FaClock className="text-orange-600" />
@@ -202,7 +207,7 @@ export default function DetailDrawerSupplier({ isOpen, onClose, idDetail, onUpda
                     </DrawerFooter>
                 </DrawerContent>
             </Drawer>
-            <ToastContainer position="top-right" autoClose={3000} containerId="D"/>
+            <ToastContainer position="top-right" autoClose={3000} containerId="D" />
         </>
     );
 }

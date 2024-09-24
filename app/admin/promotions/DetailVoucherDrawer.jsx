@@ -250,7 +250,6 @@ export default function DetailVoucherDrawer({ isOpen, onClose, idDetail, onUpdat
                                     </div>
                                 </div>
 
-                          
                             </div>
                         </div>
                     </div>

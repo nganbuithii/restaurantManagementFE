@@ -2,7 +2,7 @@
 const nextConfig = {
     
     images: {
-        domains: ['res.cloudinary.com'], // Thêm domain của Cloudinary
+      domains: ['res.cloudinary.com', 'lh3.googleusercontent.com'],
       },
 };
 

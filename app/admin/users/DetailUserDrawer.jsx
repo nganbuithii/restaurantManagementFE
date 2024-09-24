@@ -10,8 +10,11 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { checkPermission } from '@/utils/permissionUtils';
 
 export default function UserDrawer({ isOpen, onClose, userId, onUpdate }) {
+    const permissions = useSelector(state => state.auth.permissions);
+    const canUpdateUsers = checkPermission(permissions, 'User', 'PATCH');
     const [user, setUser] = useState({
         id: '', email: '', fullName: '', phone: '', username: '', avatar: '', roleId: '', isActive: true, password: ''
     });
@@ -90,12 +93,12 @@ export default function UserDrawer({ isOpen, onClose, userId, onUpdate }) {
     return (
         <>
             <Drawer open={isOpen} onClose={onClose}>
-                <DrawerContent className="bg-gradient-to-br from-blue-50 to-indigo-100">
-                    <DrawerHeader className="border-b border-blue-200">
-                        <DrawerTitle className="text-2xl font-bold text-blue-800">
+                <DrawerContent className="bg-gradient-to-br from-orange-50 to-indigo-100">
+                    <DrawerHeader className="border-b border-orange-200">
+                        <DrawerTitle className="text-2xl font-bold text-orange-800">
                             {isNewUser ? 'Create New User' : 'User Details'}
                         </DrawerTitle>
-                        <Button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full bg-blue-200 text-blue-800 hover:bg-blue-300 transition duration-300">
+                        <Button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full bg-orange-200 text-orange-800 hover:bg-orange-300 transition duration-300">
                             <FaTimes />
                         </Button>
                     </DrawerHeader>
@@ -104,15 +107,15 @@ export default function UserDrawer({ isOpen, onClose, userId, onUpdate }) {
                             <div className="mb-4">
                                 <Label htmlFor="fullName" className="text-sm text-gray-600">Full Name</Label>
                                 <div className="flex items-center space-x-3">
-                                    <div className="bg-blue-100 p-2 rounded-full">
-                                        <FaUser className="text-blue-600" />
+                                    <div className="bg-orange-100 p-2 rounded-full">
+                                        <FaUser className="text-orange-600" />
                                     </div>
                                     <Input
                                         id="fullName"
                                         name="fullName"
                                         value={user.fullName}
                                         onChange={handleChange}
-                                        className="flex-1 font-semibold text-blue-800"
+                                        className="flex-1 font-semibold text-orange-800"
                                         disabled={!isEditing}
                                     />
                                 </div>
@@ -121,15 +124,15 @@ export default function UserDrawer({ isOpen, onClose, userId, onUpdate }) {
                             <div className="mb-4">
                                 <Label htmlFor="username" className="text-sm text-gray-600">Username</Label>
                                 <div className="flex items-center space-x-3">
-                                    <div className="bg-blue-100 p-2 rounded-full">
-                                        <FaUser className="text-blue-600" />
+                                    <div className="bg-orange-100 p-2 rounded-full">
+                                        <FaUser className="text-orange-600" />
                                     </div>
                                     <Input
                                         id="username"
                                         name="username"
                                         value={user.username}
                                         onChange={handleChange}
-                                        className="flex-1 font-semibold text-blue-800"
+                                        className="flex-1 font-semibold text-orange-800"
                                         disabled={!isEditing}
                                     />
                                 </div>
@@ -139,8 +142,8 @@ export default function UserDrawer({ isOpen, onClose, userId, onUpdate }) {
                                 <div>
                                     <Label htmlFor="email" className="text-sm text-gray-600">Email</Label>
                                     <div className="flex items-center space-x-3">
-                                        <div className="bg-blue-100 p-2 rounded-full">
-                                            <FaEnvelope className="text-blue-600" />
+                                        <div className="bg-orange-100 p-2 rounded-full">
+                                            <FaEnvelope className="text-orange-600" />
                                         </div>
                                         <Input
                                             id="email"
@@ -148,7 +151,7 @@ export default function UserDrawer({ isOpen, onClose, userId, onUpdate }) {
                                             type="email"
                                             value={user.email}
                                             onChange={handleChange}
-                                            className="flex-1 font-semibold text-blue-800"
+                                            className="flex-1 font-semibold text-orange-800"
                                             disabled={!isEditing}
                                         />
                                     </div>
@@ -157,15 +160,15 @@ export default function UserDrawer({ isOpen, onClose, userId, onUpdate }) {
                                 <div>
                                     <Label htmlFor="phone" className="text-sm text-gray-600">Phone</Label>
                                     <div className="flex items-center space-x-3">
-                                        <div className="bg-blue-100 p-2 rounded-full">
-                                            <FaPhone className="text-blue-600" />
+                                        <div className="bg-orange-100 p-2 rounded-full">
+                                            <FaPhone className="text-orange-600" />
                                         </div>
                                         <Input
                                             id="phone"
                                             name="phone"
                                             value={user.phone}
                                             onChange={handleChange}
-                                            className="flex-1 font-semibold text-blue-800"
+                                            className="flex-1 font-semibold text-orange-800"
                                             disabled={!isEditing}
                                         />
                                     </div>
@@ -174,15 +177,15 @@ export default function UserDrawer({ isOpen, onClose, userId, onUpdate }) {
                                 <div>
                                     <Label htmlFor="roleId" className="text-sm text-gray-600">Role</Label>
                                     <div className="flex items-center space-x-3">
-                                        <div className="bg-blue-100 p-2 rounded-full">
-                                            <FaUserTag className="text-blue-600" />
+                                        <div className="bg-orange-100 p-2 rounded-full">
+                                            <FaUserTag className="text-orange-600" />
                                         </div>
                                         <Select 
                                             onValueChange={(value) => setUser(prev => ({ ...prev, roleId: value }))}
                                             value={user.roleId?.toString()}
                                             disabled={!isEditing}
                                         >
-                                            <SelectTrigger id="roleId" className="flex-1 font-semibold text-blue-800">
+                                            <SelectTrigger id="roleId" className="flex-1 font-semibold text-orange-800">
                                                 <SelectValue placeholder="Select Role" />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -203,7 +206,7 @@ export default function UserDrawer({ isOpen, onClose, userId, onUpdate }) {
                                             onCheckedChange={handleSwitchChange}
                                             disabled={!isEditing}
                                         />
-                                        <span className="font-semibold text-blue-800">
+                                        <span className="font-semibold text-orange-800">
                                             {user.isActive ? 'Active' : 'Inactive'}
                                         </span>
                                     </div>
@@ -214,8 +217,8 @@ export default function UserDrawer({ isOpen, onClose, userId, onUpdate }) {
                                 <div className="mt-4">
                                     <Label htmlFor="password" className="text-sm text-gray-600">Password</Label>
                                     <div className="flex items-center space-x-3">
-                                        <div className="bg-blue-100 p-2 rounded-full">
-                                            <FaLock className="text-blue-600" />
+                                        <div className="bg-orange-100 p-2 rounded-full">
+                                            <FaLock className="text-orange-600" />
                                         </div>
                                         <Input
                                             id="password"
@@ -223,7 +226,7 @@ export default function UserDrawer({ isOpen, onClose, userId, onUpdate }) {
                                             type="password"
                                             value={user.password}
                                             onChange={handleChange}
-                                            className="flex-1 font-semibold text-blue-800"
+                                            className="flex-1 font-semibold text-orange-800"
                                             placeholder={isNewUser ? "Enter password" : "Leave blank to keep current password"}
                                         />
                                     </div>
@@ -231,9 +234,9 @@ export default function UserDrawer({ isOpen, onClose, userId, onUpdate }) {
                             )}
                         </div>
                     </div>
-                    <DrawerFooter className="border-t border-blue-200">
+                    <DrawerFooter className="border-t border-orange-200">
                         {isNewUser || isEditing ? (
-                            <Button onClick={handleSubmit} className="w-full bg-blue-600 text-white hover:bg-blue-700 transition duration-300">
+                            <Button onClick={handleSubmit} className="w-full bg-orange-600 text-white hover:bg-orange-700 transition duration-300">
                                 {isNewUser ? (
                                     <>
                                         <FaPlus className="mr-2" /> Create User
@@ -245,9 +248,11 @@ export default function UserDrawer({ isOpen, onClose, userId, onUpdate }) {
                                 )}
                             </Button>
                         ) : (
-                            <Button onClick={() => setIsEditing(true)} className="w-full bg-blue-600 text-white hover:bg-blue-700 transition duration-300">
-                                Edit User
-                            </Button>
+                            canUpdateUsers && (
+                                <Button onClick={() => setIsEditing(true)} className="w-full bg-orange-600 text-white hover:bg-orange-700 transition duration-300">
+                                    Edit User
+                                </Button>
+                            )
                         )}
                     </DrawerFooter>
                 </DrawerContent>
