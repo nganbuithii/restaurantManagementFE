@@ -11,9 +11,9 @@ import { enUS } from 'date-fns/locale';
 import Loading from '@/components/Loading';
 import dynamic from 'next/dynamic';
 import ReservationDrawer from './ReservationDrawer';
-import { RefreshCw, Calendar, Clock, Info, MapPin, Users } from 'lucide-react';
+import { RefreshCw, Calendar, Clock, Info, MapPin, Users, Edit } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-
+import TableSelectionDrawer from './TableSelectionDrawer'
 const ReservationHistory = () => {
     const [loading, setLoading] = useState(true);
     const [reservations, setReservations] = useState([]);

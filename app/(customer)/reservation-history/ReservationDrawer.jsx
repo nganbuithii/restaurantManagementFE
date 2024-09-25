@@ -5,16 +5,12 @@ import { Separator } from "@/components/ui/separator";
 import { authApi, endpoints } from '@/app/configs/API';
 import { useDispatch, useSelector } from 'react-redux';
 import { Calendar, Clock, User, Phone } from 'lucide-react';
-
-import { useSelector } from 'react-redux';
-import { Calendar, Clock, User, Phone } from 'lucide-react';
-import Loading from '@/components/Loading'; // You can keep this if you still want a loading spinner.
 import { Button } from '@/components/ui/button';
 import { format, isValid, differenceInHours, parseISO } from 'date-fns';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Skeleton } from "@/components/ui/skeleton"; 
-import { fetchReservationDetails } from '@/app/store/reservationSlice';
+// import { fetchReservationDetails } from '@/app/store/reservationSlice';
 
 
 
