@@ -1,4 +1,6 @@
+
 'use client'
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { authApi, endpoints } from '@/app/configs/API';
 import { useSelector } from 'react-redux';
@@ -19,6 +21,12 @@ const ReservationHistory = () => {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [selectedId, setSelectedId] = useState(null);
     const [filter, setFilter] = useState('all');
+    const [isTableDrawerOpen, setIsTableDrawerOpen] = useState(false);
+    const [selectedTable, setSelectedTable] = useState(null);
+    const [reservationDate, setReservationDate] = useState(new Date());
+    const [reservationTime, setReservationTime] = useState("18:00");
+
+
 
     const token = useSelector((state) => state.auth.token);
 
@@ -33,11 +41,17 @@ const ReservationHistory = () => {
         } finally {
             setLoading(false);
         }
-    },[token]);
+    }, [token]);
+
+    useEffect(() => {
+        fetchReservations();
+    }, [token, fetchReservations]);
+
 
     useEffect(() => {
         fetchReservations();
     }, [token,fetchReservations]);
+
 
     const handleViewDetails = (reservationId) => {
         setSelectedId(reservationId);
@@ -46,6 +60,25 @@ const ReservationHistory = () => {
 
     const handleRefresh = () => {
         fetchReservations();
+    };
+
+    const handleTableChange = (reservationId) => {
+        setSelectedId(reservationId);
+        setIsTableDrawerOpen(true);
+        // Set the reservation date and time for the drawer
+        const selectedReservation = reservations.find(res => res.id === reservationId);
+        if (selectedReservation) {
+            setReservationDate(new Date(selectedReservation.date));
+            setReservationTime(selectedReservation.time);
+        }
+    };
+
+    const handleTableSelected = (table) => {
+        console.log("Selected Table:", table);
+        console.log("For Reservation ID:", selectedId);
+        setSelectedTable(table);
+        setIsTableDrawerOpen(false);
+        // Ở đây bạn có thể thêm logic để cập nhật lịch hẹn với bàn mới
     };
 
     const getStatusColor = (status) => {
@@ -130,25 +163,46 @@ const ReservationHistory = () => {
                                                         <span className="text-gray-700">{reservation.time}</span>
                                                     </div>
                                                 </div>
-                                                <motion.button
-                                                    whileHover={{ scale: 1.03 }}
-                                                    whileTap={{ scale: 0.97 }}
-                                                    onClick={() => handleViewDetails(reservation.id)}
-                                                    className="mt-4 w-full inline-flex items-center justify-center px-4 py-2 bg-orange-100 text-orange-700 rounded-md hover:bg-orange-200 transition-colors duration-200"
-                                                >
-                                                    <Info className="mr-2" size={18} />
-                                                    View Details
-                                                </motion.button>
-                                            </div>
-                                        </motion.div>
-                                    ))}
-                                </div>
-                            </AnimatePresence>
-                        )}
-                    </div>
-                </div>
-            </main>
 
+                                                <div className="flex justify-between mt-4">
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.03 }}
+                                                        whileTap={{ scale: 0.97 }}
+                                                        onClick={() => handleViewDetails(reservation.id)}
+                                                        className="inline-flex items-center justify-center px-4 py-2 bg-orange-100 text-orange-700 rounded-md hover:bg-orange-200 transition-colors duration-200"
+                                                    >
+                                                        <Info className="mr-2" size={18} />
+                                                        View Details
+                                                    </motion.button>
+                                                    {reservation.status.toLowerCase() === 'pending' && (
+                                                        <motion.button
+                                                            onClick={() => handleTableChange(reservation.id)}
+                                                            className="inline-flex items-center justify-center px-4 py-2 bg-pink-100 text-pink-700 rounded-md hover:bg-pink-200 transition-colors duration-200"
+                                                        >
+                                                            <Edit className="mr-2" size={18} />
+                                                            Change table
+                                                        </motion.button>
+                                                    )}
+                                                </div>
+
+                                            </div >
+                                        </motion.div >
+                                    ))}
+                                </div >
+                            </AnimatePresence >
+                        )}
+                    </div >
+                </div >
+            </main >
+            <TableSelectionDrawer
+                isOpen={isTableDrawerOpen}
+                onClose={() => setIsTableDrawerOpen(false)}
+                date={reservationDate}
+                time={reservationTime}
+                onTableSelected={handleTableSelected}
+                reservationId={selectedId}
+            />
+                                
             <ReservationDrawer
                 isOpen={isDrawerOpen}
                 onClose={() => setIsDrawerOpen(false)}
@@ -160,6 +214,7 @@ const ReservationHistory = () => {
             />
 
             <Footer />
+
         </div>
     );
 };

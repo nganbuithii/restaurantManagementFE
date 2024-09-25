@@ -14,6 +14,7 @@ const PaymentSuccess = () => {
     const router = useRouter();
     const token = useSelector((state) => state.auth.token);
     const bookingInfo = useSelector((state) => state.booking);
+
     const handleGoHome = () => {
         router.push('/');
     };
@@ -32,16 +33,17 @@ const PaymentSuccess = () => {
             };
             await authApi(token).post(endpoints.vnpay_return, paymentData);
 
-
         } catch (error) {
-            console.error("Lỗi", error);
-            alert('Đã xảy ra lỗi khi xử lý thanh toán');
+            console.error("Error", error);
+            alert('An error occurred while processing the payment');
+
             router.push('/payment-failed');
         }
     }, [token, router]);
 
     useEffect(() => {
         const url = endpoints.getReservationById(bookingInfo.id);
+
         console.log("URLLL", url)
         const handleQuery = async () => {
             const query = new URLSearchParams(window.location.search);
@@ -67,7 +69,9 @@ const PaymentSuccess = () => {
                 <Card className="w-full max-w-2xl bg-white shadow-2xl rounded-3xl overflow-hidden">
                     <CardContent className="p-8 sm:p-12">
                         <div className="text-center">
-                            <h1 className="text-4xl font-bold mb-4 text-gray-800">Thanh Toán Thành Công</h1>
+
+                            <h1 className="text-4xl font-bold mb-4 text-gray-800">Payment Successful</h1>
+
                             <div className="mb-8">
                                 <Image
                                     src="/images/success.webp"
@@ -77,12 +81,17 @@ const PaymentSuccess = () => {
                                     className="mx-auto rounded-full shadow-lg"
                                 />
                             </div>
-                            <p className="text-xl text-gray-600 mb-8">Cảm ơn bạn đã thanh toán. Đơn hàng của bạn đã được xử lý thành công.</p>
+
+
+                            <p className="text-xl text-gray-600 mb-8">Thank you for your payment. Your order has been processed successfully.</p>
+
+
                             <Button
                                 onClick={handleGoHome}
                                 className="bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white py-3 px-8 rounded-full text-lg font-semibold transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50"
                             >
-                                Quay về trang chính
+                                Return to Home Page
+
                             </Button>
                         </div>
                     </CardContent>
@@ -92,6 +101,5 @@ const PaymentSuccess = () => {
         </div>
     );
 };
-
 
 export default dynamic(() => Promise.resolve(PaymentSuccess), { ssr: false });
