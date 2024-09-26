@@ -1,5 +1,3 @@
-// src/store/slices/reservationSlice.js
-
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { authApi, endpoints } from '@/app/configs/API';
 
@@ -16,6 +14,25 @@ export const fetchReservationDetails = createAsyncThunk(
     }
 );
 
+export const updateReservationDishes = createAsyncThunk(
+    'reservation/updateReservationDishes',
+    async ({ reservationId, orderId, menuItems }, { getState, rejectWithValue }) => {
+        const token = getState().auth.token;
+        try {
+            const response = await authApi(token).get(endpoints.getReservationById(reservationId));
+            if (!response.data || !response.data.data) {
+                throw new Error('Unexpected response format');
+            }
+            return {
+                ...response.data.data,
+                orderId: orderId,
+                menuItems: menuItems
+            };
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || error.message);
+        }
+    }
+);
 
 const reservationSlice = createSlice({
     name: 'reservation',
@@ -36,6 +53,20 @@ const reservationSlice = createSlice({
                 state.loading = false;
             })
             .addCase(fetchReservationDetails.rejected, (state, action) => {
+                state.error = action.payload;
+                state.loading = false;
+            })
+            .addCase(updateReservationDishes.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(updateReservationDishes.fulfilled, (state, action) => {
+                state.details = {  
+                    ...action.payload
+                };
+                state.loading = false;
+            })
+            .addCase(updateReservationDishes.rejected, (state, action) => {
                 state.error = action.payload;
                 state.loading = false;
             });
