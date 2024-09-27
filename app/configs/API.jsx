@@ -56,7 +56,9 @@ export const endpoints = {
     'getunRead':'/api/notifications/unread-count',
     'getNofi':'/api/notifications',
     'googleLogin':'/api/auth/google',
-    'table_available':'/api/table/available'
+    'table_available':'/api/table/available',
+    'saveVoucher':(id) => `/api/vouchers/${id}/save`,
+    'getSavedVoucher':'/api/vouchers/saved',
 }
 
 export const authApi = (accessToken) =>

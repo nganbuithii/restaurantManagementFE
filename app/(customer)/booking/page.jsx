@@ -241,7 +241,7 @@ function ModernBookingTable() {
                 orderId: orderId
             }));
 
-            toast.success("Đặt bàn thành công", { containerId: 'A' });
+            toast.success("Booking reservation is successfull", { containerId: 'A' });
 
             setTimeout(() => {
                 if (totalAmount > 0) {
@@ -253,11 +253,11 @@ function ModernBookingTable() {
 
         } catch (error) {
             if (error.response && error.response.data) {
-                toast.error(` ${error.response.data.message || 'Lỗi chi tiết không có'}`, {
+                toast.error(` ${error.response.data.message || 'Error with booking reservation. Try again'}`, {
                     containerId: 'A'
                 });
             } else {
-                toast.error('Lỗi khi đặt chỗ', { containerId: 'A' });
+                toast.error('Error with booking reservation.', { containerId: 'A' });
                 console.log(error)
             }
 

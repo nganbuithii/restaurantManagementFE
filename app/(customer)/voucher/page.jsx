@@ -1,54 +1,88 @@
 'use client'
 import React, { useCallback, useEffect, useState } from 'react';
-import { FaTag, FaClock, FaPercent, FaGift, FaInfoCircle, FaChevronDown } from 'react-icons/fa';
-import { useSelector } from 'react-redux';
+import { FaTag, FaClock, FaPercent, FaGift } from 'react-icons/fa';
+import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import API, { endpoints } from '@/app/configs/API';
+import API, { authApi, endpoints } from '@/app/configs/API';
 import Footer from '@/components/footer';
 import Header from '@/components/header';
 import dynamic from 'next/dynamic';
+import { saveVoucherForCustomer } from '@/app/store/voucherSlice';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const VoucherList = () => {
-    const [allVouchers, setAllVouchers] = useState([]);
-    const [displayedVouchers, setDisplayedVouchers] = useState([]);
+    const [vouchers, setVouchers] = useState([]);
+    const [savedVouchers, setSavedVouchers] = useState([]); // Lưu danh sách voucher đã được lưu
     const [isLoading, setIsLoading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(0);
+    const [itemsPerPage, setItemsPerPage] = useState(4);
     const token = useSelector((state) => state.auth.token);
+    const dispatch = useDispatch();
 
-    const fetchVouchers = useCallback(async () => {
+    const fetchSavedVouchers = useCallback(async () => {
+        try {
+            const response = await authApi(token).post(endpoints.getSavedVoucher); 
+            return response.data.data.map(voucher => voucher.id);
+        } catch (error) {
+            console.error("Unable to fetch saved vouchers:", error);
+            return [];
+        }
+    }, []);
+
+    const fetchVouchers = useCallback(async (page) => {
         setIsLoading(true);
         try {
-            const response = await API.get(endpoints.getAllVouchers);
-            setAllVouchers(response.data.data.data);
-            setDisplayedVouchers(response.data.data.data.slice(0, 4));
+            const response = await API.get(endpoints.getAllVouchers, {
+                params: { page, limit: itemsPerPage }
+            });
+            const { data, total, itemsPerPage: responseItemsPerPage } = response.data.data;
+            if (page === 1) {
+                setVouchers(data);
+            } else {
+                setVouchers(prevVouchers => [...prevVouchers, ...data]);
+            }
+            setItemsPerPage(responseItemsPerPage);
+            setTotalPages(Math.ceil(total / responseItemsPerPage));
         } catch (error) {
             console.error("Unable to fetch voucher list:", error);
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [itemsPerPage]);
 
     useEffect(() => {
-        fetchVouchers();
-    }, [fetchVouchers]);
+        const fetchInitialData = async () => {
+            const savedVoucherIds = await fetchSavedVouchers(); 
+            setSavedVouchers(savedVoucherIds);
+            fetchVouchers(1); 
+        };
+        fetchInitialData();
+    }, [fetchVouchers, fetchSavedVouchers]);
 
+    // Load thêm voucher
     const handleLoadMore = () => {
-        const currentLength = displayedVouchers.length;
-        const nextVouchers = allVouchers.slice(currentLength, currentLength + 4);
-        setDisplayedVouchers([...displayedVouchers, ...nextVouchers]);
+        const nextPage = currentPage + 1;
+        if (nextPage <= totalPages) {
+            setCurrentPage(nextPage);
+            fetchVouchers(nextPage);
+        }
+    };
+
+    const hasMore = currentPage < totalPages;
+
+    const isVoucherSaved = (voucherId) => {
+        return savedVouchers.includes(voucherId);
     };
 
     const handleApplyVoucher = (voucherId) => {
-        console.log(`Applying voucher with ID: ${voucherId}`);
-    };
-
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'ACTIVE': return 'bg-green-500';
-            case 'INACTIVE': return 'bg-yellow-500';
-            case 'EXPIRED': return 'bg-red-500';
-            default: return 'bg-gray-500';
-        }
+        dispatch(saveVoucherForCustomer(voucherId)).unwrap().then(() => {
+            toast.success("Voucher saved successfully!", { containerId: 'A' });
+            setSavedVouchers([...savedVouchers, voucherId]);
+        }).catch((error) => {
+            toast.error("Failed to save voucher", { containerId: 'A' });
+        });
     };
 
     const calculateTimeLeft = (endDate) => {
@@ -68,7 +102,7 @@ const VoucherList = () => {
             <div className="container mx-auto px-4 py-12 mt-24">
                 <h1 className="text-4xl font-bold mb-8 text-orange-600 text-center">Massive Discount Codes</h1>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {displayedVouchers.map((voucher) => (
+                    {vouchers.map((voucher) => (
                         <div key={voucher.id} className="bg-white rounded-2xl shadow-xl overflow-hidden border border-orange-200 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
                             <div className="p-6 bg-gradient-to-r from-orange-400 to-red-500 text-white relative">
                                 <div className="flex justify-between items-center mb-3">
@@ -97,33 +131,29 @@ const VoucherList = () => {
                                 </div>
                                 <Button
                                     onClick={() => handleApplyVoucher(voucher.id)}
-                                    disabled={voucher.status !== 'ACTIVE'}
-                                    className={`w-full ${voucher.status === 'ACTIVE' ? 'bg-orange-500 hover:bg-orange-600 active:bg-orange-700' : 'bg-gray-300'} text-white transition duration-300 py-3 text-lg font-bold rounded-full shadow-md hover:shadow-lg transform hover:-translate-y-1`}
+                                    disabled={voucher.status !== 'ACTIVE' || isVoucherSaved(voucher.id)}
+                                    className={`w-full ${voucher.status === 'ACTIVE' && !isVoucherSaved(voucher.id) ? 'bg-orange-500 hover:bg-orange-600 active:bg-orange-700' : 'bg-gray-300'} text-white transition duration-300 py-3 text-lg font-bold rounded-full shadow-md hover:shadow-lg transform hover:-translate-y-1`}
                                 >
-                                    {voucher.status === 'ACTIVE' ? 'Apply Now' : 'Unavailable'}
+                                    {isVoucherSaved(voucher.id) ? 'Saved' : 'Save'}
                                 </Button>
                             </div>
                         </div>
                     ))}
                 </div>
-                {displayedVouchers.length < allVouchers.length && (
+                {hasMore && (
                     <div className="mt-12 text-center">
                         <Button
                             onClick={handleLoadMore}
                             disabled={isLoading}
-                            className="bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white px-8 py-4 rounded-full font-bold text-xl shadow-lg transition duration-300 flex items-center justify-center transform hover:-translate-y-1"
+                            className="bg-gradient-to-r from-yellow-500 to-orange-600 active:bg-orange-700 text-white px-8 py-4 rounded-full font-bold text-xl shadow-lg transition duration-300 flex items-center justify-center transform hover:-translate-y-1"
                         >
-                            {isLoading ? (
-                                <span className="animate-spin mr-3">⏳</span>
-                            ) : (
-                                <FaChevronDown className="mr-3" />
-                            )}
-                            {isLoading ? 'Loading...' : 'Load More Vouchers'}
+                            {isLoading ? 'Loading...' : 'See more'}
                         </Button>
                     </div>
                 )}
             </div>
             <Footer />
+            <ToastContainer containerId="A" position="top-right" autoClose={3000} />
         </div>
     );
 };

@@ -4,6 +4,7 @@ import authReducer from './authSlice';
 import bookingReducer from './bookingSlice'
 import notificationReducer from './NotificationSlice'
 import reservationReducer from './reservationSlice'
+import voucherReducer from './voucherSlice'
 
 // Lấy trạng thái từ localStorage
 const loadState = () => {
@@ -32,6 +33,7 @@ const store = configureStore({
         booking:bookingReducer,
         notifications:notificationReducer,
         reservation: reservationReducer,
+        vouchers: voucherReducer,
 
     },
     preloadedState: loadState(),
