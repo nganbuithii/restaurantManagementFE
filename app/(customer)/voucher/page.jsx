@@ -31,6 +31,7 @@ const VoucherList = () => {
         }
     }, [token]);
 
+
     const fetchVouchers = useCallback(async (page) => {
         setIsLoading(true);
         try {
@@ -61,6 +62,7 @@ const VoucherList = () => {
         fetchInitialData();
     }, [fetchVouchers, fetchSavedVouchers]);
 
+    // Load thêm voucher
     const handleLoadMore = () => {
         const nextPage = currentPage + 1;
         if (nextPage <= totalPages) {
