@@ -9,6 +9,7 @@ const initialState = {
     preOrderItems: [],
     totalAmount: 0,
     orderId:null,
+    selectedVoucher: null, 
 };
 
 const bookingSlice = createSlice({
@@ -18,11 +19,14 @@ const bookingSlice = createSlice({
         setBookingInfo: (state, action) => {
             return { ...state, ...action.payload };
         },
+        setSelectedVoucher: (state, action) => {
+            state.selectedVoucher = action.payload;
+        },
         clearBookingInfo: (state) => {
             return initialState;
         },
     },
 });
 
-export const { setBookingInfo, clearBookingInfo } = bookingSlice.actions;
+export const { setBookingInfo,setSelectedVoucher, clearBookingInfo } = bookingSlice.actions;
 export default bookingSlice.reducer;

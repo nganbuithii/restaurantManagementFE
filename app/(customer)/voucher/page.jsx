@@ -29,7 +29,7 @@ const VoucherList = () => {
             console.error("Unable to fetch saved vouchers:", error);
             return [];
         }
-    }, []);
+    }, [token]);
 
     const fetchVouchers = useCallback(async (page) => {
         setIsLoading(true);
@@ -61,7 +61,6 @@ const VoucherList = () => {
         fetchInitialData();
     }, [fetchVouchers, fetchSavedVouchers]);
 
-    // Load thêm voucher
     const handleLoadMore = () => {
         const nextPage = currentPage + 1;
         if (nextPage <= totalPages) {
