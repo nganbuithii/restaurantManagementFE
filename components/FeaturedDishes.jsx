@@ -9,6 +9,8 @@ import { motion } from 'framer-motion';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
+import { useDispatch } from "react-redux";
+import { addToCart } from "@/app/store/cartSlice";
 
 const FeaturedDishes = () => {
   const [dishes, setDishes] = useState([]);
@@ -147,36 +149,47 @@ const FeaturedDishes = () => {
   );
 };
 
-const DishCard = ({ dish }) => (
-  <motion.div 
-    className="bg-white rounded-xl shadow-lg overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-xl"
-    whileHover={{ y: -5 }}
-  >
-    <div className="relative">
-      <Image
-        src={dish.images[0]?.url || "/images/default-food.jpg"}
-        alt={dish.name}
-        width={400}
-        height={300}
-        className="w-full h-48 object-cover"
-      />
-      <div className="absolute top-0 right-0 bg-orange-500 text-white px-3 py-1 rounded-bl-lg font-semibold text-sm">
-        New
+const DishCard = ({ dish }) => {
+  const dispatch = useDispatch();
+
+  const handleOrderNow = () => {
+    dispatch(addToCart({ menuItemId: dish.id, quantity: 1 }));
+  };
+
+  return (
+    <motion.div 
+      className="bg-white rounded-xl shadow-lg overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-xl"
+      whileHover={{ y: -5 }}
+    >
+      <div className="relative">
+        <Image
+          src={dish.images[0]?.url || "/images/default-food.jpg"}
+          alt={dish.name}
+          width={400}
+          height={300}
+          className="w-full h-48 object-cover"
+        />
+        <div className="absolute top-0 right-0 bg-orange-500 text-white px-3 py-1 rounded-bl-lg font-semibold text-sm">
+          New
+        </div>
       </div>
-    </div>
-    <div className="p-4">
-      <h3 className="text-xl font-bold mb-2 text-gray-800 truncate">{dish.name}</h3>
-      <p className="text-gray-600 mb-3 text-sm line-clamp-2">
-        {dish.description || "A tantalizing fusion of flavors that will excite your palate."}
-      </p>
-      <div className="flex justify-between items-center">
-        <span className="text-lg font-bold text-orange-500">${(dish.price / 100).toFixed(2)}</span>
-        <Button className="bg-orange-500 text-white px-3 py-1 rounded-full hover:bg-orange-600 transition duration-300 text-sm font-semibold">
-          Order Now
-        </Button>
+      <div className="p-4">
+        <h3 className="text-xl font-bold mb-2 text-gray-800 truncate">{dish.name}</h3>
+        <p className="text-gray-600 mb-3 text-sm line-clamp-2">
+          {dish.description || "A tantalizing fusion of flavors that will excite your palate."}
+        </p>
+        <div className="flex justify-between items-center">
+          <span className="text-lg font-bold text-orange-500">${(dish.price / 100).toFixed(2)}</span>
+          <Button
+            onClick={handleOrderNow}
+            className="bg-orange-500 text-white px-3 py-1 rounded-full hover:bg-orange-600 transition duration-300 text-sm font-semibold"
+          >
+            Order Now
+          </Button>
+        </div>
       </div>
-    </div>
-  </motion.div>
-);
+    </motion.div>
+  );
+};
 
 export default FeaturedDishes;

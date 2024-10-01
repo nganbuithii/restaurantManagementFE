@@ -42,15 +42,22 @@ export default function Login() {
             localStorage.setItem('token', response.data.data.accessToken);
 
             const userResponse = await authApi(response.data.data.accessToken).get(endpoints.currentUser);
-            console.log(userResponse.data)
+            console.log("USER RESPONSE", userResponse.data)
             if (userResponse.data.data.roleName !== 'CUSTOMER') {
                 toast.error('Your account is invalid');
                 return;
             }
+
+            const cartTotalItems = userResponse.data.data.cart ? userResponse.data.data.cart.totalItems : 0;
+            console.log("Tổng Số Mặt Hàng", cartTotalItems);
+    
+            // Dispatch hành động
             dispatch(loginSuccess({
                 user: userResponse.data.data,
-                token: response.data.data.accessToken
+                token: response.data.data.accessToken,
+                totalItems: cartTotalItems, // Đảm bảo rằng giá trị này khớp với reducer
             }));
+    
 
             const previousPage = localStorage.getItem('previousPage');
             localStorage.removeItem('previousPage');
@@ -74,14 +81,14 @@ export default function Login() {
             console.log('Backend response:', response);
             if (response.data && response.data.data.accessToken) {
                 localStorage.setItem('token', response.data.data.accessToken)
-                const userResponse = await authApi(response.data.data.accessToken).get(endpoints.currentUser);           
+                const userResponse = await authApi(response.data.data.accessToken).get(endpoints.currentUser);
                 console.log('User data:', userResponse.data);
-    
+
                 dispatch(loginSuccess({
                     user: userResponse.data.data,
                     token: response.data.data.accessToken
                 }));
-    
+
                 router.push('/');
             } else {
                 console.error('Unexpected response structure:', response);

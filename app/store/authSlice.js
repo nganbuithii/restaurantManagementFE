@@ -5,6 +5,7 @@ const initialState = {
     token: null,
     isAuthenticated: false,
     permissions: [], 
+    cartTotalItems: 0,
 };
 
 const authSlice = createSlice({
@@ -16,12 +17,14 @@ const authSlice = createSlice({
             state.token = action.payload.token;
             state.isAuthenticated = true;
             state.permissions = action.payload.permissions || [];
+            state.cartTotalItems = action.payload.totalItems || 0; 
         },
         logout(state) {
             state.user = null;
             state.token = null;
             state.isAuthenticated = false;
             state.permissions = [];
+            state.cartTotalItems = 0;
         },
         updateUser(state, action) {
             state.user = {
@@ -33,8 +36,18 @@ const authSlice = createSlice({
             const updatedPermissions = action.payload.permissions;  
             state.permissions = updatedPermissions;
         },
+        updateCartTotalItems(state, action) {
+            state.cartTotalItems = action.payload;
+        },
     },
 });
 
-export const { loginSuccess, logout, updateUser, updateRolePermissions } = authSlice.actions;
+export const { 
+    loginSuccess, 
+    logout, 
+    updateUser, 
+    updateRolePermissions, 
+    updateCartTotalItems 
+} = authSlice.actions;
+
 export default authSlice.reducer;

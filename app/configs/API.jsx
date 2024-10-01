@@ -59,6 +59,9 @@ export const endpoints = {
     'table_available':'/api/table/available',
     'saveVoucher':(id) => `/api/vouchers/${id}/save`,
     'getSavedVoucher':'/api/vouchers/saved',
+    'addCart':'/api/cart/add',
+    'getCart':'/api/cart',
+    'removeCart':(id) => `/api/cart/remove/${id}`
 }
 
 export const authApi = (accessToken) =>

@@ -12,6 +12,8 @@ import { fetchUnreadNotificationsCount } from '@/app/store/NotificationSlice';
 import NotificationPopover from '@/components/NotificationPopover';
 
 export default function Header() {
+    const cartTotalItems = useSelector((state) => state.auth.cartTotalItems);
+
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -117,7 +119,7 @@ export default function Header() {
                         {/* Cart and Notifications */}
                         <Link href="/cart" className="relative group">
                             <FiShoppingCart className={`text-2xl hover:text-orange-300 transition-colors duration-300 ${textColor}`} />
-                            <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                            <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">{cartTotalItems}</span>
                         </Link>
 
                         {/* Notifications */}
