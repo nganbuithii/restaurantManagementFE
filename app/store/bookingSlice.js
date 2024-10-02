@@ -22,11 +22,15 @@ const bookingSlice = createSlice({
         setSelectedVoucher: (state, action) => {
             state.selectedVoucher = action.payload;
         },
+        setCartItems: (state, action) => {
+            state.preOrderItems = action.payload.selectedItems;
+            state.totalAmount = action.payload.total;
+        },
         clearBookingInfo: (state) => {
             return initialState;
         },
     },
 });
 
-export const { setBookingInfo,setSelectedVoucher, clearBookingInfo } = bookingSlice.actions;
+export const { setBookingInfo,setSelectedVoucher, clearBookingInfo,setCartItems, } = bookingSlice.actions;
 export default bookingSlice.reducer;

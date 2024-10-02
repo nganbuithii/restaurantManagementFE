@@ -10,7 +10,7 @@ import Loading from '@/components/Loading';
 import { useSelector, useDispatch } from 'react-redux';
 import dynamic from "next/dynamic";
 import API, { endpoints } from '@/app/configs/API';
-import VoucherDrawer from './VoucherDrawer';
+import VoucherDrawer from '@/components/VoucherDrawer';
 import { setSelectedVoucher } from '@/app/store/bookingSlice';
 
 const PaymentPage = () => {
@@ -28,7 +28,7 @@ const PaymentPage = () => {
     const handleApplyVoucher = useCallback((voucher) => {
         console.log('Applying voucher:', voucher);
         console.log('Original amount:', originalAmount);
-    
+
         if (voucher && voucher.percent) {
             const remainingPercentage = 100 - voucher.percent;
             const discountedTotal = (originalAmount * remainingPercentage) / 100;
@@ -37,14 +37,14 @@ const PaymentPage = () => {
         } else {
             setTotalAmount(originalAmount);
         }
-    
+
         console.log('New total amount:', totalAmount);
     }, [originalAmount, totalAmount]);
     useEffect(() => {
         if (selectedVoucher) {
             handleApplyVoucher(selectedVoucher);
         }
-    }, [selectedVoucher, handleApplyVoucher]); 
+    }, [selectedVoucher, handleApplyVoucher]);
 
     const paymentMethods = [
         { id: 'visa', src: '/images/payment-1.png', alt: 'Visa' },
@@ -84,8 +84,8 @@ const PaymentPage = () => {
         }
     };
 
-    
-    
+
+
     return (
         <>
             <Header bgColor="bg-white" />
@@ -100,11 +100,10 @@ const PaymentPage = () => {
                                     {paymentMethods.map((method) => (
                                         <div
                                             key={method.id}
-                                            className={`border rounded-lg p-4 cursor-pointer transition-all duration-200 ${
-                                                selectedPayment === method.id
+                                            className={`border rounded-lg p-4 cursor-pointer transition-all duration-200 ${selectedPayment === method.id
                                                     ? 'border-blue-500 shadow-md'
                                                     : 'border-gray-200 hover:border-blue-300'
-                                            }`}
+                                                }`}
                                             onClick={() => setSelectedPayment(method.id)}
                                         >
                                             <Image
@@ -160,18 +159,18 @@ const PaymentPage = () => {
                                         )}
                                     </div>
                                     <div className="border-t pt-4">
-                <div className="flex justify-between font-semibold text-lg">
-                    <span>Total</span>
-                    <div>
-                        {selectedVoucher && (
-                            <span className="line-through text-gray-500 mr-2">
-                                ${originalAmount.toFixed(2)}
-                            </span>
-                        )}
-                        <span className="text-green-600">${totalAmount.toFixed(2)}</span>
-                    </div>
-                </div>
-            </div>
+                                        <div className="flex justify-between font-semibold text-lg">
+                                            <span>Total</span>
+                                            <div>
+                                                {selectedVoucher && (
+                                                    <span className="line-through text-gray-500 mr-2">
+                                                        ${originalAmount.toFixed(2)}
+                                                    </span>
+                                                )}
+                                                <span className="text-green-600">${totalAmount.toFixed(2)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <Button
                                     onClick={handlePayment}

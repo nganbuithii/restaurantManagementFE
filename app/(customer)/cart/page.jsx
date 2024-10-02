@@ -8,8 +8,11 @@ import { MinusCircle, PlusCircle, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import Loading from '@/components/Loading'
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
+import { useRouter } from 'next/navigation';
+import { setCartItems } from '@/app/store/bookingSlice';
 
 export default function Cart() {
+    const router = useRouter();
     const dispatch = useDispatch();
     const { items: cartItems, status } = useSelector((state) => state.cart);
     const [total, setTotal] = useState(0);
@@ -79,6 +82,27 @@ export default function Cart() {
     if (status === 'failed') {
         return <div>Error loading cart. Please try again.</div>;
     }
+    
+    const handleConfirm =async () => {
+        // Lấy các mục đã chọn trong giỏ hàng
+        const selectedCartItems = cartItems.filter(item => selectedItems[item.id]);
+
+        // Chuyển đổi các mục đã chọn thành định dạng mà bạn muốn lưu
+        const selectedItemsWithDetails = selectedCartItems.map(item => ({
+            id:item.menuItem.id,
+            name: item.menuItem.name,  
+            quantity: item.quantity,   
+            price: item.menuItem.price, 
+            total: item.menuItem.price * item.quantity 
+        }));
+        
+        // Gửi dữ liệu vào redux
+        dispatch(setCartItems({ selectedItems: selectedItemsWithDetails, total }));
+        
+        // Chuyển hướng đến trang thanh toán
+        router.push('/payment-cart');
+    }
+    
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-100">
@@ -164,7 +188,7 @@ export default function Cart() {
                                 <p className="text-xl font-semibold text-gray-900">Total:</p>
                                 <p className="text-2xl font-bold text-orange-600">{total.toLocaleString('en-US')} $</p>
                             </div>
-                            <button className="mt-4 w-full bg-gradient-to-r from-yellow-500 to-orange-600 text-white py-2 px-4 rounded-md hover:bg-orange-700 transition-colors">
+                            <button  onClick={() => handleConfirm ()} className="mt-4 w-full bg-gradient-to-r from-yellow-500 to-orange-600 text-white py-2 px-4 rounded-md hover:bg-orange-700 transition-colors">
                                 Proceed to Checkout
                             </button>
                         </div>

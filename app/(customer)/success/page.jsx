@@ -5,41 +5,20 @@ import Header from '@/components/header';
 import Footer from '@/components/footer';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2 } from 'lucide-react';
+import { clearBookingInfo } from '@/app/store/bookingSlice';
 import Image from 'next/image';
 import dynamic from "next/dynamic";
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { authApi, endpoints } from '@/app/configs/API';
 const PaymentSuccess = () => {
     const router = useRouter();
     const token = useSelector((state) => state.auth.token);
     const bookingInfo = useSelector((state) => state.booking);
-
+    const dispatch = useDispatch(); 
     const handleGoHome = () => {
         router.push('/');
     };
-    const handleVnpayReturn = useCallback(async (query) => {
-        try {
-            const vnp_ResponseCode = query.vnp_ResponseCode;
-            const vnp_TxnRef = query.vnp_TxnRef;
-            const vnp_PayDate = query.vnp_PayDate;
-            const vnp_TransactionStatus = query.vnp_TransactionStatus;
 
-            const paymentData = {
-                vnp_ResponseCode,
-                vnp_TxnRef,
-                vnp_PayDate,
-                vnp_TransactionStatus
-            };
-            await authApi(token).post(endpoints.vnpay_return, paymentData);
-
-        } catch (error) {
-            console.error("Error", error);
-            alert('An error occurred while processing the payment');
-
-            router.push('/payment-failed');
-        }
-    }, [token, router]);
 
     useEffect(() => {
         const url = endpoints.getReservationById(bookingInfo.id);
