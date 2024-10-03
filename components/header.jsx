@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { useDispatch, useSelector } from 'react-redux'; 
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link';
 import Image from 'next/image';
 import { FaBell, FaSignInAlt } from "react-icons/fa";
@@ -13,17 +13,31 @@ import NotificationPopover from '@/components/NotificationPopover';
 
 export default function Header() {
     const cartTotalItems = useSelector((state) => state.auth.cartTotalItems);
-
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [isProfileSheetOpen, setIsProfileSheetOpen] = useState(false);
     const router = useRouter();
     const pathname = usePathname();
+    const searchParams = useSearchParams();
     const user = useSelector((state) => state.auth.user);
-    const unreadCount = useSelector((state) => state.notifications.unreadCount); 
-        const dispatch = useDispatch();
+    const unreadCount = useSelector((state) => state.notifications.unreadCount);
+    const dispatch = useDispatch();
 
+    useEffect(() => {
+        const query = searchParams.get('query');
+        if (query) {
+            setSearchQuery(query);
+        }
+    }, [searchParams]);
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (searchQuery.trim()) {
+            router.push(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
+        }
+    };
+    
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 10);
@@ -35,17 +49,9 @@ export default function Header() {
 
     useEffect(() => {
         if (user) {
-            console.log("unread c ount",unreadCount)
             dispatch(fetchUnreadNotificationsCount());
         }
-    }, [dispatch, user,unreadCount]);
-
-    const handleSearch = (e) => {
-        e.preventDefault();
-        if (searchQuery.trim()) {
-            router.push(`/search?query=${encodeURIComponent(searchQuery)}`);
-        }
-    };
+    }, [dispatch, user, unreadCount]);
 
     const handleBookTableClick = () => {
         if (user) {
@@ -110,7 +116,7 @@ export default function Header() {
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Tìm kiếm món ăn..."
+                                placeholder="Search for dishes..."
                                 className={`w-48 md:w-64 pl-10 rounded-full border-2 border-orange-300 focus:border-orange-500 transition-all duration-300 bg-white/10 backdrop-blur-sm ${textColor}`}
                             />
                             <FiSearch className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${textColor}`} />
@@ -123,7 +129,6 @@ export default function Header() {
                         </Link>
 
                         {/* Notifications */}
-                      
                         <NotificationPopover />
 
                         {/* Book a Table button */}
@@ -193,7 +198,7 @@ export default function Header() {
                                     type="text"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="Tìm kiếm món ăn..."
+                                    placeholder="Search for dishes..."
                                     className="w-full pl-10 rounded-full border-2 border-orange-300 focus:border-orange-500 transition-all duration-300 bg-white/10 backdrop-blur-sm"
                                 />
                                 <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-700" />
