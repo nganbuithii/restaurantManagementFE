@@ -57,7 +57,7 @@ export default function SearchResults() {
             <div className="container mx-auto px-4 py-12 mt-24">
                 <div className="search-results container mx-auto">
 
-                    <h2 className="text-3xl font-bold mb-6 text-center text-orange-800">Search Results for "{searchQuery}"</h2>
+                    <h2 className="text-3xl font-bold mb-6 text-center text-orange-800">Search Results for {searchQuery}</h2>
                     {searchResults.data && searchResults.data.length === 0 ? (
                         <p className="text-center text-gray-600 text-xl">No results found.</p>
                     ) : (

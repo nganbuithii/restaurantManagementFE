@@ -3,10 +3,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchCart, addToCart, removeFromCart, updateCart } from '@/app/store/cartSlice';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { MinusCircle, PlusCircle, Trash2 } from 'lucide-react';
 import Image from 'next/image';
-import Loading from '@/components/Loading'
+import Loading from '@/components/Loading';
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import { useRouter } from 'next/navigation';
 import { setCartItems } from '@/app/store/bookingSlice';
@@ -19,6 +19,16 @@ export default function Cart() {
     const [selectedItems, setSelectedItems] = useState({});
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState(null);
+
+    const calculateTotal = useCallback(() => {
+        const newTotal = cartItems.reduce((sum, item) => {
+            if (selectedItems[item.id]) {
+                return sum + item.menuItem.price * item.quantity;
+            }
+            return sum;
+        }, 0);
+        setTotal(newTotal);
+    }, [cartItems, selectedItems]);
 
     useEffect(() => {
         dispatch(fetchCart());
@@ -33,11 +43,11 @@ export default function Cart() {
             setSelectedItems(defaultSelectedItems);
             calculateTotal();
         }
-    }, [cartItems]);
+    }, [cartItems, calculateTotal]);
 
     useEffect(() => {
         calculateTotal();
-    }, [cartItems, selectedItems]);
+    }, [cartItems, selectedItems, calculateTotal]);
 
     const handleRemoveItem = (id) => {
         setItemToDelete(id);
@@ -58,16 +68,6 @@ export default function Cart() {
         dispatch(updateCart({ itemId: id, quantity: newQuantity }));
     };
 
-    const calculateTotal = () => {
-        const newTotal = cartItems.reduce((sum, item) => {
-            if (selectedItems[item.id]) {
-                return sum + item.menuItem.price * item.quantity;
-            }
-            return sum;
-        }, 0);
-        setTotal(newTotal);
-    };
-
     const handleSelectItem = (id) => {
         setSelectedItems((prev) => ({
             ...prev,
@@ -76,33 +76,32 @@ export default function Cart() {
     };
 
     if (status === 'loading') {
-        return <Loading />
+        return <Loading />;
     }
 
     if (status === 'failed') {
         return <div>Error loading cart. Please try again.</div>;
     }
-    
-    const handleConfirm =async () => {
+
+    const handleConfirm = async () => {
         // Lấy các mục đã chọn trong giỏ hàng
         const selectedCartItems = cartItems.filter(item => selectedItems[item.id]);
 
         // Chuyển đổi các mục đã chọn thành định dạng mà bạn muốn lưu
         const selectedItemsWithDetails = selectedCartItems.map(item => ({
-            id:item.menuItem.id,
-            name: item.menuItem.name,  
-            quantity: item.quantity,   
-            price: item.menuItem.price, 
-            total: item.menuItem.price * item.quantity 
+            id: item.menuItem.id,
+            name: item.menuItem.name,
+            quantity: item.quantity,
+            price: item.menuItem.price,
+            total: item.menuItem.price * item.quantity
         }));
-        
+
         // Gửi dữ liệu vào redux
         dispatch(setCartItems({ selectedItems: selectedItemsWithDetails, total }));
-        
+
         // Chuyển hướng đến trang thanh toán
         router.push('/payment-cart');
-    }
-    
+    };
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-100">
@@ -188,7 +187,7 @@ export default function Cart() {
                                 <p className="text-xl font-semibold text-gray-900">Total:</p>
                                 <p className="text-2xl font-bold text-orange-600">{total.toLocaleString('en-US')} $</p>
                             </div>
-                            <button  onClick={() => handleConfirm ()} className="mt-4 w-full bg-gradient-to-r from-yellow-500 to-orange-600 text-white py-2 px-4 rounded-md hover:bg-orange-700 transition-colors">
+                            <button onClick={handleConfirm} className="mt-4 w-full bg-gradient-to-r from-yellow-500 to-orange-600 text-white py-2 px-4 rounded-md hover:bg-orange-700 transition-colors">
                                 Proceed to Checkout
                             </button>
                         </div>
