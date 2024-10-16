@@ -13,6 +13,7 @@ import { CalendarIcon, FileSpreadsheet, FileText } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
+import Loading from '@/components/Loading';
 const formatCurrency = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
 
 const RevenueStatisticsDashboard = () => {
@@ -23,9 +24,12 @@ const RevenueStatisticsDashboard = () => {
     const [totalNetRevenue, setTotalNetRevenue] = useState(0);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const token = useSelector((state) => state.auth.token);
+    const [isLoading, setIsLoading] = useState(false);
+
 
     useEffect(() => {
         const fetchRevenueData = async () => {
+            setIsLoading(true);
             const year = selectedDate.getFullYear();
             const month = selectedDate.getMonth() + 1;
             try {
@@ -46,10 +50,13 @@ const RevenueStatisticsDashboard = () => {
                 }
             } catch (error) {
                 console.error("Failed to fetch revenue data:", error);
+            } finally {
+                setIsLoading(false);
             }
         };
 
         const fetchAllMonthsData = async () => {
+            setIsLoading(true);
             try {
                 const response = await authApi(token).post(endpoints.statisticRevenue, { year: selectedDate.getFullYear() });
                 if (response.data && response.data.data && response.data.data.data) {
@@ -57,6 +64,8 @@ const RevenueStatisticsDashboard = () => {
                 }
             } catch (error) {
                 console.error("Failed to fetch all months data:", error);
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -98,114 +107,121 @@ const RevenueStatisticsDashboard = () => {
                 <HeaderAdmin />
                 <main className="ml-64 flex-1 p-6 bg-gray-100">
                     <div className="container mx-auto px-4 py-8">
-                        <div className="bg-white shadow-sm rounded-lg p-6 mb-8">
-                            <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-                                <h1 className="text-3xl font-bold text-gray-800">Revenue Statistics</h1>
+                        {isLoading ? (
+                            <Loading />
+                        ) : (
+                            <>
+                                <div className="bg-white shadow-sm rounded-lg p-6 mb-8">
+                                    <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                                        <h1 className="text-3xl font-bold text-gray-800">Revenue Statistics</h1>
 
-                                <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
-                                    <div className="relative">
-                                        <DatePicker
-                                            selected={selectedDate}
-                                            onChange={date => setSelectedDate(date)}
-                                            dateFormat="MMMM yyyy"
-                                            showMonthYearPicker
-                                            className="border border-gray-300 p-2 pl-10 rounded-md shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 w-full sm:w-auto"
-                                        />
-                                        <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                                    </div>
+                                        <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                                            <div className="relative">
+                                                <DatePicker
+                                                    selected={selectedDate}
+                                                    onChange={date => setSelectedDate(date)}
+                                                    dateFormat="MMMM yyyy"
+                                                    showMonthYearPicker
+                                                    className="border border-gray-300 p-2 pl-10 rounded-md shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 w-full sm:w-auto"
+                                                />
+                                                <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                                            </div>
 
-                                    <div className="flex space-x-2">
-                                        <button
-                                            onClick={exportToPDF}
-                                            className="flex items-center px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-300 shadow-md hover:shadow-lg"
-                                        >
-                                            <FileText className="mr-2" size={20} />
-                                            <span className="hidden sm:inline">Export PDF</span>
-                                        </button>
-                                        <button
-                                            onClick={exportToExcel}
-                                            className="flex items-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors duration-300 shadow-md hover:shadow-lg"
-                                        >
-                                            <FileSpreadsheet className="mr-2" size={20} />
-                                            <span className="hidden sm:inline">Export Excel</span>
-                                        </button>
+                                            <div className="flex space-x-2">
+                                                <button
+                                                    onClick={exportToPDF}
+                                                    className="flex items-center px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-300 shadow-md hover:shadow-lg"
+                                                >
+                                                    <FileText className="mr-2" size={20} />
+                                                    <span className="hidden sm:inline">Export PDF</span>
+                                                </button>
+                                                <button
+                                                    onClick={exportToExcel}
+                                                    className="flex items-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors duration-300 shadow-md hover:shadow-lg"
+                                                >
+                                                    <FileSpreadsheet className="mr-2" size={20} />
+                                                    <span className="hidden sm:inline">Export Excel</span>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                            <Card className="bg-white shadow-sm rounded-lg overflow-hidden transition-all duration-300 hover:shadow-md">
-                                <CardHeader className="bg-blue-100 p-4">
-                                    <CardTitle className="text-lg font-medium text-blue-800">Total Revenue</CardTitle>
-                                </CardHeader>
-                                <CardContent className="p-4">
-                                    <div className="text-2xl font-bold text-gray-700">{formatCurrency(totalRevenue)}</div>
-                                </CardContent>
-                            </Card>
-                            <Card className="bg-white shadow-sm rounded-lg overflow-hidden transition-all duration-300 hover:shadow-md">
-                                <CardHeader className="bg-red-100 p-4">
-                                    <CardTitle className="text-lg font-medium text-red-800">Total Discount</CardTitle>
-                                </CardHeader>
-                                <CardContent className="p-4">
-                                    <div className="text-2xl font-bold text-gray-700">{formatCurrency(totalDiscount)}</div>
-                                </CardContent>
-                            </Card>
-                            <Card className="bg-white shadow-sm rounded-lg overflow-hidden transition-all duration-300 hover:shadow-md">
-                                <CardHeader className="bg-green-100 p-4">
-                                    <CardTitle className="text-lg font-medium text-green-800">Net Revenue</CardTitle>
-                                </CardHeader>
-                                <CardContent className="p-4">
-                                    <div className="text-2xl font-bold text-gray-700">{formatCurrency(totalNetRevenue)}</div>
-                                </CardContent>
-                            </Card>
-                        </div>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                    <Card className="bg-white shadow-sm rounded-lg overflow-hidden transition-all duration-300 hover:shadow-md">
+                                        <CardHeader className="bg-blue-100 p-4">
+                                            <CardTitle className="text-lg font-medium text-blue-800">Total Revenue</CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-4">
+                                            <div className="text-2xl font-bold text-gray-700">{formatCurrency(totalRevenue)}</div>
+                                        </CardContent>
+                                    </Card>
+                                    <Card className="bg-white shadow-sm rounded-lg overflow-hidden transition-all duration-300 hover:shadow-md">
+                                        <CardHeader className="bg-red-100 p-4">
+                                            <CardTitle className="text-lg font-medium text-red-800">Total Discount</CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-4">
+                                            <div className="text-2xl font-bold text-gray-700">{formatCurrency(totalDiscount)}</div>
+                                        </CardContent>
+                                    </Card>
+                                    <Card className="bg-white shadow-sm rounded-lg overflow-hidden transition-all duration-300 hover:shadow-md">
+                                        <CardHeader className="bg-green-100 p-4">
+                                            <CardTitle className="text-lg font-medium text-green-800">Net Revenue</CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-4">
+                                            <div className="text-2xl font-bold text-gray-700">{formatCurrency(totalNetRevenue)}</div>
+                                        </CardContent>
+                                    </Card>
+                                </div>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <Card className="bg-white shadow-sm rounded-lg overflow-hidden">
-                                <CardHeader className="bg-gray-100 p-4 border-b border-gray-200">
-                                    <CardTitle className="text-xl font-semibold text-gray-700">Monthly Revenue Chart</CardTitle>
-                                </CardHeader>
-                                <CardContent className="p-4">
-                                    <ResponsiveContainer width="100%" height={400}>
-                                        <BarChart data={revenueData}>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                                            <XAxis dataKey="monthYear" stroke="#718096" />
-                                            <YAxis stroke="#718096" />
-                                            <Tooltip
-                                                contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '4px' }}
-                                                formatter={(value) => formatCurrency(value)}
-                                            />
-                                            <Legend />
-                                            <Bar dataKey="totalRevenue" name="Total Revenue" fill="#63b3ed" radius={[4, 4, 0, 0]} />
-                                            <Bar dataKey="netRevenue" name="Net Revenue" fill="#9ae6b4" radius={[4, 4, 0, 0]} />
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </CardContent>
-                            </Card>
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                    <Card className="bg-white shadow-sm rounded-lg overflow-hidden">
+                                        <CardHeader className="bg-gray-100 p-4 border-b border-gray-200">
+                                            <CardTitle className="text-xl font-semibold text-gray-700">Monthly Revenue Chart</CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-4">
+                                            <ResponsiveContainer width="100%" height={400}>
+                                                <BarChart data={revenueData}>
+                                                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                                    <XAxis dataKey="monthYear" stroke="#718096" />
+                                                    <YAxis stroke="#718096" />
+                                                    <Tooltip
+                                                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '4px' }}
+                                                        formatter={(value) => formatCurrency(value)}
+                                                    />
+                                                    <Legend />
+                                                    <Bar dataKey="totalRevenue" name="Total Revenue" fill="#63b3ed" radius={[4, 4, 0, 0]} />
+                                                    <Bar dataKey="netRevenue" name="Net Revenue" fill="#9ae6b4" radius={[4, 4, 0, 0]} />
+                                                </BarChart>
+                                            </ResponsiveContainer>
+                                        </CardContent>
+                                    </Card>
 
-                            <Card className="bg-white shadow-sm rounded-lg overflow-hidden">
-                                <CardHeader className="bg-gray-100 p-4 border-b border-gray-200">
-                                    <CardTitle className="text-xl font-semibold text-gray-700">All Months Revenue Trend</CardTitle>
-                                </CardHeader>
-                                <CardContent className="p-4">
-                                    <ResponsiveContainer width="100%" height={400}>
-                                        <LineChart data={allMonthsData}>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                                            <XAxis dataKey="monthYear" stroke="#718096" />
-                                            <YAxis stroke="#718096" />
-                                            <Tooltip
-                                                contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '4px' }}
-                                                formatter={(value) => formatCurrency(value)}
-                                            />
-                                            <Legend />
-                                            <Line type="monotone" dataKey="totalRevenue" name="Total Revenue" stroke="#63b3ed" strokeWidth={2} dot={{ r: 4 }} />
-                                            <Line type="monotone" dataKey="netRevenue" name="Net Revenue" stroke="#9ae6b4" strokeWidth={2} dot={{ r: 4 }} />
-                                        </LineChart>
-                                    </ResponsiveContainer>
-                                </CardContent>
-                            </Card>
-                        </div>
+                                    <Card className="bg-white shadow-sm rounded-lg overflow-hidden">
+                                        <CardHeader className="bg-gray-100 p-4 border-b border-gray-200">
+                                            <CardTitle className="text-xl font-semibold text-gray-700">All Months Revenue Trend</CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-4">
+                                            <ResponsiveContainer width="100%" height={400}>
+                                                <LineChart data={allMonthsData}>
+                                                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                                    <XAxis dataKey="monthYear" stroke="#718096" />
+                                                    <YAxis stroke="#718096" />
+                                                    <Tooltip
+                                                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '4px' }}
+                                                        formatter={(value) => formatCurrency(value)}
+                                                    />
+                                                    <Legend />
+                                                    <Line type="monotone" dataKey="totalRevenue" name="Total Revenue" stroke="#63b3ed" strokeWidth={2} dot={{ r: 4 }} />
+                                                    <Line type="monotone" dataKey="netRevenue" name="Net Revenue" stroke="#9ae6b4" strokeWidth={2} dot={{ r: 4 }} />
+                                                </LineChart>
+                                            </ResponsiveContainer>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                            </>
+                        )}
+
                     </div>
                 </main>
             </div>

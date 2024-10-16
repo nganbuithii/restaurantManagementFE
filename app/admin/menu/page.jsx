@@ -18,6 +18,7 @@ import DeleteConfirmationDialog from "@/components/DeleteConfirmationDialog";
 import DetailMenuDrawer from "./DetailMenuDrawer"
 import { checkPermission } from '@/utils/permissionUtils';;
 import Image from "next/image";
+import { Suspense } from 'react'
 
 function Menus() {
     const permissions = useSelector(state => state.auth.permissions);
@@ -114,6 +115,7 @@ function Menus() {
     };
 
     return (
+       
         <div className="flex">
             <Navbar />
             <div className="flex-1 flex flex-col">
@@ -202,6 +204,7 @@ function Menus() {
             </div>
             <ToastContainer containerId="A" position="top-right" autoClose={3000} />
         </div>
+      
     );
 }
 export default dynamic(() => Promise.resolve(Menus), { ssr: false })

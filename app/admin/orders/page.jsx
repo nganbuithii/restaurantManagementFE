@@ -21,7 +21,8 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import DetailOrderDrawer from './DetailOrderDrawer'
-
+import { Button } from "@/components/ui/button";
+import CreateOrderDrawer  from './CreateOrderDrawer'
 function Orders() {
     const labels = ["Home", "Management Orders"];
     const links = ["/admin/dashboard", "/admin/orders"];
@@ -30,9 +31,10 @@ function Orders() {
     const [totalPages, setTotalPages] = useState(1);
     const [selectedStatus, setSelectedStatus] = useState("All");
     const [orderToChange, setOrderToChange] = useState(null);
-    const [newStatus, setNewStatus] = useState(""); 
+    const [newStatus, setNewStatus] = useState("");
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
     const token = useSelector((state) => state.auth.token);
+    const [isCreateDrawerOpen, setIsCreateDrawerOpen] = useState(false);
 
     const [isDrawerDetailOpen, setIsDrawerDetailOpen] = useState(false);
     const [selectedId, setSelectedId] = useState(null);
@@ -44,7 +46,12 @@ function Orders() {
     const handleCloseDetail = () => {
         setIsDrawerDetailOpen(false);
     };
-
+    const handleOpenCreateDrawer = () => {
+        setIsCreateDrawerOpen(true);
+    };
+    const handleOrderCreated = (newOrder) => {
+        setOrders((prevOrders) => [newOrder, ...prevOrders]);
+    };
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -78,7 +85,7 @@ function Orders() {
     };
 
     const handleConfirmChangeStatus = async () => {
-        const apiEndpoint = endpoints.changeStatusOrder( orderToChange.id);
+        const apiEndpoint = endpoints.changeStatusOrder(orderToChange.id);
         try {
             const response = await authApi(token).patch(apiEndpoint, {
                 status: newStatus,
@@ -113,21 +120,29 @@ function Orders() {
                             Management Orders
                         </h1>
                         <div className="flex justify-between items-center mb-4">
-                        <Select onValueChange={(value) => setSelectedStatus(value)}>
-                            <SelectTrigger className="w-[180px] bg-white border border-gray-300 rounded-lg shadow-sm">
-                                <SelectValue placeholder="Filter by Status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup>
-                                    <SelectItem value="All">All</SelectItem>
-                                    <SelectItem value="pending">PENDING</SelectItem>
-                                    <SelectItem value="processing">PROCESSING</SelectItem>
-                                    <SelectItem value="completed">COMPLETED</SelectItem>
-                                    <SelectItem value="cancelled">CANCELLED</SelectItem>
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
-                    </div>
+                            <Button className="bg-gradient-to-r from-yellow-500 to-orange-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md mr-10" onClick={handleOpenCreateDrawer} >
+                                Add New Order
+                            </Button>
+                            <CreateOrderDrawer 
+                                isOpen={isCreateDrawerOpen}
+                                onClose={() => setIsCreateDrawerOpen(false)}
+                                onOrderCreated={handleOrderCreated}
+                            />
+                            <Select onValueChange={(value) => setSelectedStatus(value)}>
+                                <SelectTrigger className="w-[180px] bg-white border border-gray-300 rounded-lg shadow-sm">
+                                    <SelectValue placeholder="Filter by Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        <SelectItem value="All">All</SelectItem>
+                                        <SelectItem value="pending">PENDING</SelectItem>
+                                        <SelectItem value="processing">PROCESSING</SelectItem>
+                                        <SelectItem value="completed">COMPLETED</SelectItem>
+                                        <SelectItem value="cancelled">CANCELLED</SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
                     <DetailOrderDrawer
                         isOpen={isDrawerDetailOpen}
@@ -151,8 +166,8 @@ function Orders() {
                                 {orders.map((order) => (
                                     <tr key={order.id} className="hover:bg-gray-50 transition duration-150">
                                         <td className="p-4 border-b border-gray-300">{order.id}</td>
-                                        <td className="p-4 border-b border-gray-300">{order.totalPrice.toFixed(2)}</td>
-                                        <td className="p-4 border-b border-gray-300">{order.discountPrice.toFixed(2)}</td>
+                                        <td className="p-4 border-b border-gray-300">{order.totalPrice}</td>
+                                        <td className="p-4 border-b border-gray-300">{order.discountPrice}</td>
                                         <td className="p-4 border-b border-gray-300">
                                             <Select onValueChange={(value) => handleOpenChangeStatusDialog(order, value)}>
                                                 <SelectTrigger className="w-[160px] bg-white border border-gray-300 rounded-lg shadow-sm">
@@ -187,7 +202,7 @@ function Orders() {
                             onPageChange={setCurrentPage}
                         />
                     </div>
-                    
+
                 </main>
                 <ToastContainer containerId="A" position="top-right" autoClose={3000} />
             </div>
@@ -199,7 +214,7 @@ function Orders() {
                 title="Confirm Status Change"
                 description={`Are you sure you want to change the status of this order to ${newStatus}?`}
             />
-            
+
         </div>
     );
 }
