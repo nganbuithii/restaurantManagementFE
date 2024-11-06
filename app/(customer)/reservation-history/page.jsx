@@ -1,39 +1,40 @@
-
 'use client'
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { authApi, endpoints } from '@/app/configs/API';
 import { useSelector } from 'react-redux';
 import Footer from '@/components/footer';
 import Header from '@/components/header';
-import { format } from 'date-fns';
+import { format, getMonth, getYear } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import Loading from '@/components/Loading';
 import dynamic from 'next/dynamic';
 import ReservationDrawer from './ReservationDrawer';
-import { RefreshCw, Calendar, Clock, Info, MapPin, Users, Edit } from 'lucide-react';
+import { RefreshCw, Calendar, Clock, Info, Edit } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TableSelectionDrawer from './TableSelectionDrawer'
+import withLoading from '../../../hoc/withLoading';
+
 const ReservationHistory = () => {
     const [loading, setLoading] = useState(true);
     const [reservations, setReservations] = useState([]);
     const [error, setError] = useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [selectedId, setSelectedId] = useState(null);
-    const [filter, setFilter] = useState('all');
+    const [filter, setFilter] = useState({ month: getMonth(new Date()) + 1, year: getYear(new Date()) }); // Default to current month and year
     const [isTableDrawerOpen, setIsTableDrawerOpen] = useState(false);
     const [selectedTable, setSelectedTable] = useState(null);
     const [reservationDate, setReservationDate] = useState(new Date());
     const [reservationTime, setReservationTime] = useState("18:00");
-
-
 
     const token = useSelector((state) => state.auth.token);
 
     const fetchReservations = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await authApi(token).post(endpoints['getReservationByMe']);
+            const response = await authApi(token).post(endpoints['getReservationByMe'], {
+                month: filter.month,
+                year: filter.year,
+            });
             setReservations(response.data.data);
             setError(null);
         } catch (err) {
@@ -41,17 +42,11 @@ const ReservationHistory = () => {
         } finally {
             setLoading(false);
         }
-    }, [token]);
+    }, [token, filter]);
 
     useEffect(() => {
         fetchReservations();
     }, [token, fetchReservations]);
-
-
-    useEffect(() => {
-        fetchReservations();
-    }, [token,fetchReservations]);
-
 
     const handleViewDetails = (reservationId) => {
         setSelectedId(reservationId);
@@ -78,7 +73,7 @@ const ReservationHistory = () => {
         console.log("For Reservation ID:", selectedId);
         setSelectedTable(table);
         setIsTableDrawerOpen(false);
-        // Ở đây bạn có thể thêm logic để cập nhật lịch hẹn với bàn mới
+        // Here you can add logic to update the reservation with the new table
     };
 
     const getStatusColor = (status) => {
@@ -94,9 +89,18 @@ const ReservationHistory = () => {
         }
     };
 
+    const handleMonthChange = (month) => {
+        setFilter(prevFilter => ({ ...prevFilter, month }));
+    };
+
+    const handleYearChange = (year) => {
+        setFilter(prevFilter => ({ ...prevFilter, year }));
+    };
+
     const filteredReservations = reservations.filter(reservation => {
-        if (filter === 'all') return true;
-        return reservation.status === filter;
+        const reservationMonth = new Date(reservation.date).getMonth() + 1;
+        const reservationYear = new Date(reservation.date).getFullYear();
+        return reservationMonth === filter.month && reservationYear === filter.year;
     });
 
     return (
@@ -108,6 +112,30 @@ const ReservationHistory = () => {
                     <div className="p-6 sm:p-10">
                         <div className="flex flex-col sm:flex-row justify-between items-center mb-8">
                             <h1 className="text-3xl font-bold text-orange-600 mb-4 sm:mb-0">Your Reservation History</h1>
+                            <div className="flex items-center space-x-4">
+                                <select
+                                    value={filter.month}
+                                    onChange={(e) => handleMonthChange(parseInt(e.target.value))}
+                                    className="px-4 py-2 bg-white border border-gray-300 rounded-md"
+                                >
+                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(month => (
+                                        <option key={month} value={month}>
+                                            {format(new Date(2023, month - 1, 1), 'MMMM', { locale: enUS })}
+                                        </option>
+                                    ))}
+                                </select>
+                                <select
+                                    value={filter.year}
+                                    onChange={(e) => handleYearChange(parseInt(e.target.value))}
+                                    className="px-4 py-2 bg-white border border-gray-300 rounded-md"
+                                >
+                                    {[2023, 2024, 2025].map(year => (
+                                        <option key={year} value={year}>
+                                            {year}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
 
                         {loading ? (
@@ -124,7 +152,7 @@ const ReservationHistory = () => {
                             </div>
                         ) : filteredReservations.length === 0 ? (
                             <div className="text-center py-10">
-                                <p className="text-gray-600 mb-4">You have no reservations yet.</p>
+                                <p className="text-gray-600 mb-4">You have no reservations for the selected month and year.</p>
                                 <a href="/make-reservation" className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors duration-200">
                                     Make a Reservation
                                 </a>
@@ -174,7 +202,7 @@ const ReservationHistory = () => {
                                                         <Info className="mr-2" size={18} />
                                                         View Details
                                                     </motion.button>
-                                                    {reservation.status.toLowerCase() === 'pending' && (
+                                                    {reservation.status.toLowerCase() === 'pending' && new Date(reservation.date) > new Date() && (
                                                         <motion.button
                                                             onClick={() => handleTableChange(reservation.id)}
                                                             className="inline-flex items-center justify-center px-4 py-2 bg-pink-100 text-pink-700 rounded-md hover:bg-pink-200 transition-colors duration-200"
@@ -184,7 +212,6 @@ const ReservationHistory = () => {
                                                         </motion.button>
                                                     )}
                                                 </div>
-
                                             </div >
                                         </motion.div >
                                     ))}
@@ -202,7 +229,7 @@ const ReservationHistory = () => {
                 onTableSelected={handleTableSelected}
                 reservationId={selectedId}
             />
-                                
+
             <ReservationDrawer
                 isOpen={isDrawerOpen}
                 onClose={() => setIsDrawerOpen(false)}
@@ -219,4 +246,4 @@ const ReservationHistory = () => {
     );
 };
 
-export default dynamic(() => Promise.resolve(ReservationHistory), { ssr: false });
+export default dynamic(() => Promise.resolve(withLoading(ReservationHistory)), { ssr: false });

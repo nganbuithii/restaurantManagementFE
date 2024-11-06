@@ -10,8 +10,8 @@ import Loading from '@/components/Loading';
 import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog';
 import { useRouter } from 'next/navigation';
 import { setCartItems } from '@/app/store/bookingSlice';
-
-export default function Cart() {
+import withLoading from '../../../hoc/withLoading';
+const Cart =() => {
     const router = useRouter();
     const dispatch = useDispatch();
     const { items: cartItems, status } = useSelector((state) => state.cart);
@@ -20,15 +20,6 @@ export default function Cart() {
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState(null);
 
-    const calculateTotal = useCallback(() => {
-        const newTotal = cartItems.reduce((sum, item) => {
-            if (selectedItems[item.id]) {
-                return sum + item.menuItem.price * item.quantity;
-            }
-            return sum;
-        }, 0);
-        setTotal(newTotal);
-    }, [cartItems, selectedItems]);
 
     useEffect(() => {
         dispatch(fetchCart());
@@ -43,16 +34,21 @@ export default function Cart() {
             setSelectedItems(defaultSelectedItems);
             calculateTotal();
         }
-    }, [cartItems, calculateTotal]);
+    }, [cartItems]);
+
+    const calculateTotal = useCallback(() => {
+        const newTotal = cartItems.reduce((sum, item) => {
+            if (selectedItems[item.id]) {
+                return sum + item.menuItem.price * item.quantity;
+            }
+            return sum;
+        }, 0);
+        setTotal(newTotal);
+    }, [cartItems, selectedItems]);
 
     useEffect(() => {
         calculateTotal();
-    }, [cartItems, selectedItems, calculateTotal]);
-
-    const handleRemoveItem = (id) => {
-        setItemToDelete(id);
-        setDeleteDialogOpen(true);
-    };
+    }, [calculateTotal]);
 
     const handleCloseDeleteDialog = () => {
         setDeleteDialogOpen(false);
@@ -60,7 +56,10 @@ export default function Cart() {
     };
 
     const handleDeleteConfirmed = () => {
-        dispatch(removeFromCart(itemToDelete));
+        if (itemToDelete) {
+            dispatch(removeFromCart(itemToDelete));
+            setItemToDelete(null);
+        }
         handleCloseDeleteDialog();
     };
 
@@ -75,13 +74,10 @@ export default function Cart() {
         }));
     };
 
-    if (status === 'loading') {
-        return <Loading />;
-    }
-
-    if (status === 'failed') {
-        return <div>Error loading cart. Please try again.</div>;
-    }
+    const handleRemoveItem = (id) => {
+        setItemToDelete(id);
+        setDeleteDialogOpen(true);
+    };
 
     const handleConfirm = async () => {
         // Lấy các mục đã chọn trong giỏ hàng
@@ -103,6 +99,13 @@ export default function Cart() {
         router.push('/payment-cart');
     };
 
+    if (status === 'loading') {
+        return <Loading />;
+    }
+
+    if (status === 'failed') {
+        return <div>Error loading cart. Please try again.</div>;
+    }
     return (
         <div className="min-h-screen flex flex-col bg-gray-100">
             <Header />
@@ -205,3 +208,4 @@ export default function Cart() {
         </div>
     );
 }
+export default withLoading(Cart);

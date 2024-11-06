@@ -27,6 +27,7 @@ import Step5 from "./Step5"
 import Step6 from "./Step6"
 import { useRouter } from 'next/navigation';
 import { setBookingInfo } from '@/app/store/bookingSlice';
+import withLoading from '@/hoc/withLoading';
 
 const timeSlots = [
     '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
@@ -312,4 +313,4 @@ function ModernBookingTable() {
     );
 }
 
-export default dynamic(() => Promise.resolve(ModernBookingTable), { ssr: false })
+export default dynamic(() => Promise.resolve(withLoading(ModernBookingTable)), { ssr: false })

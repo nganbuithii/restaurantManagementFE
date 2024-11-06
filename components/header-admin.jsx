@@ -36,13 +36,13 @@ export default function HeaderAdmin() {
                                     <p className="font-semibold text-gray-800">{user.username}</p>
                                     <p className="text-gray-500">{user.roleName}</p>
                                 </div>
-                                <div>
+                                <div className="rounded-full overflow-hidden">
                                     <Image
                                         src={user.avatar || "/images/default-avatar.jpg"}
                                         alt="avatar"
                                         width={40}
                                         height={40}
-                                        className="rounded-full border border-gray-300"
+                                        className="rounded-full object-cover"
                                     />
                                 </div>
                             </div>

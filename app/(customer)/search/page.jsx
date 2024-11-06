@@ -9,8 +9,9 @@ import { useRouter } from 'next/navigation';
 import API, { endpoints } from '@/app/configs/API';
 import Footer from '@/components/footer';
 import Header from '@/components/header';
+import withLoading from '@/hoc/withLoading';
 
-export default function SearchResults() {
+const SearchResults = () =>{
     const [searchResults, setSearchResults] = useState({ data: [], total: 0, currentPage: 1, itemsPerPage: 10 });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -121,3 +122,4 @@ export default function SearchResults() {
         </div>
     );
 }
+export default withLoading(SearchResults);

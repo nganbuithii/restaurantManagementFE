@@ -8,6 +8,7 @@ import Footer from '@/components/footer';
 import dynamic from "next/dynamic";
 import { useSelector } from 'react-redux';
 import API, { authApi, endpoints } from '@/app/configs/API';
+import withLoading from '../../../hoc/withLoading';
 
 const PaymentPage = () => {
     const token = useSelector((state) => state.auth.token);
@@ -154,4 +155,4 @@ const PaymentPage = () => {
     );
 };
 
-export default dynamic(() => Promise.resolve(PaymentPage), { ssr: false });
+export default dynamic(() => Promise.resolve(withLoading(PaymentPage)), { ssr: false });

@@ -10,6 +10,8 @@ import Loading from '@/components/Loading';
 import { motion } from 'framer-motion';
 import { ShoppingBag, Calendar, DollarSign, ChevronRight } from 'lucide-react';
 import OrderDrawer from './OrderDraw'; 
+import { format } from 'date-fns';
+import { enUS } from 'date-fns/locale';
 
 const OrderHistory = () => {
     const [orders, setOrders] = useState([]);
@@ -18,11 +20,18 @@ const OrderHistory = () => {
     const token = useSelector((state) => state.auth.token);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [selectedOrderId, setSelectedOrderId] = useState(null);
+    const [filter, setFilter] = useState({
+        month: new Date().getMonth() + 1,
+        year: new Date().getFullYear()
+    });
 
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const response = await authApi(token).post(endpoints['order-history']);
+                const response = await authApi(token).post(endpoints['order-history'], {
+                    year: filter.year,
+                    month: filter.month
+                });
                 setOrders(response.data.data.orders);
             } catch (err) {
                 setError(err.message);
@@ -32,7 +41,15 @@ const OrderHistory = () => {
         };
 
         fetchOrders();
-    }, [token]);
+    }, [token, filter.year, filter.month]);
+
+    const handleMonthChange = (month) => {
+        setFilter((prevFilter) => ({ ...prevFilter, month }));
+    };
+
+    const handleYearChange = (year) => {
+        setFilter((prevFilter) => ({ ...prevFilter, year }));
+    };
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -80,11 +97,35 @@ const OrderHistory = () => {
             <Header bgColor="bg-orange-500" />
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
                 <h1 className="text-4xl font-bold mb-8 text-orange-800 text-center">Your Order History</h1>
+                <div className="flex items-center space-x-4 mb-8">
+                    <select
+                        value={filter.month}
+                        onChange={(e) => handleMonthChange(parseInt(e.target.value))}
+                        className="px-4 py-2 bg-white border border-gray-300 rounded-md"
+                    >
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(month => (
+                            <option key={month} value={month}>
+                                {format(new Date(2023, month - 1, 1), 'MMMM', { locale: enUS })}
+                            </option>
+                        ))}
+                    </select>
+                    <select
+                        value={filter.year}
+                        onChange={(e) => handleYearChange(parseInt(e.target.value))}
+                        className="px-4 py-2 bg-white border border-gray-300 rounded-md"
+                    >
+                        {[2023, 2024, 2025].map(year => (
+                            <option key={year} value={year}>
+                                {year}
+                            </option>
+                        ))}
+                    </select>
+                </div>
                 {orders.length === 0 ? (
                     <Card className="p-6 shadow-md bg-white">
                         <CardContent className="text-center text-gray-600">
                             <ShoppingBag className="mx-auto mb-4 text-orange-400" size={48} />
-                            <p className="text-lg">You haven placed any orders yet.</p>
+                            <p className="text-lg">You haven't placed any orders yet.</p>
                         </CardContent>
                     </Card>
                 ) : (

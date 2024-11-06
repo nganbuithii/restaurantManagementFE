@@ -12,6 +12,7 @@ import dynamic from "next/dynamic";
 import API, { endpoints } from '@/app/configs/API';
 import VoucherDrawer from '@/components/VoucherDrawer';
 import { setSelectedVoucher } from '@/app/store/bookingSlice';
+import withLoading from '../../../hoc/withLoading';
 
 const PaymentPage = () => {
     const dispatch = useDispatch();
@@ -195,4 +196,4 @@ const PaymentPage = () => {
     );
 };
 
-export default dynamic(() => Promise.resolve(PaymentPage), { ssr: false });
+export default dynamic(() => Promise.resolve(withLoading(PaymentPage)), { ssr: false });

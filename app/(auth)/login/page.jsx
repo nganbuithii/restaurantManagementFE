@@ -16,8 +16,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GoogleLogin } from '@react-oauth/google';
+import withLoading from '@/hoc/withLoading';
 
-export default function Login() {
+const Login = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
@@ -284,3 +285,4 @@ export default function Login() {
         </div>
     );
 }
+export default withLoading(Login);

@@ -8,8 +8,10 @@ import API, { endpoints } from '@/app/configs/API';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import InputField from '@/components/InputField'
+import Link from 'next/link';
+import withLoading from '@/hoc/withLoading';
 
-export default function Register() {
+const Register = () =>{
     const { register, handleSubmit, formState: { errors }, watch } = useForm();
     const [errorMessage, setErrorMessage] = useState('');
     const router = useRouter();
@@ -44,7 +46,7 @@ export default function Register() {
                 <form onSubmit={handleSubmit(onSubmit)} className="bg-white bg-opacity-90 shadow-2xl rounded-3xl px-8 pt-8 pb-8 mb-4 backdrop-blur-sm">
                     <h2 className="text-3xl font-extrabold text-center text-orange-600 mb-8">Create Your Account</h2>
 
-                    <div className="space-y-6">
+                    <div className="space-y-3">
                         <InputField
                             icon={<FaUserCircle className="text-orange-400" />}
                             register={register}
@@ -129,9 +131,16 @@ export default function Register() {
                     >
                         Create Account
                     </button>
+                    <div className="mt-4 text-center">
+                        <span className="text-gray-700">Already have an account?</span>
+                        <Link href="/login" className="text-orange-500 font-medium hover:text-orange-600">
+                            Sign In
+                        </Link>
+                    </div>
                 </form>
             </div>
             <ToastContainer />
         </div>
     );
 }
+export default withLoading(Register);
